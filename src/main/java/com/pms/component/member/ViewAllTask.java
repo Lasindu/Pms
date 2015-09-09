@@ -104,10 +104,11 @@ public class ViewAllTask {
                 saveTaskButton.setData(projectList.get(x));
                 // Not developed algorithm yet for getting member
                 memberName = new Select("Select Member");
-                memberName.addItem("Member 1");
-                memberName.addItem("Member 2");
-                memberName.addItem("Member 3");
-                memberName.addItem("Member 4");
+                UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
+                List<User> userList = userDAO.loadMembers();
+                for(int i=0;i<userList.size();i++){
+                    memberName.addItem(userList.get(i).getFirstName()+" "+userList.get(i).getLastName());
+                }
 
                 viewTaskTable.addItem(new Object[] {index,projectList.get(x).getName(),projectList.get(x).getCompleteTime(),projectList.get(x).getEstimateTime(),projectList.get(x).getMemberType(),memberName,saveTaskButton},index);
 

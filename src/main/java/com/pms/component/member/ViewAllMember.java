@@ -103,7 +103,7 @@ public class ViewAllMember {
                 editProjectButton.setData(memberList.get(x));
                 viewMemberButton.setData(memberList.get(x).getUserName());
 
-                viewMemberTable.addItem(new Object[] {index,memberList.get(x).getUserName(),memberList.get(x).getEmail(),memberList.get(x).getFirstName(),memberList.get(x).getLastName(),memberList.get(x).getLocation(),memberList.get(x).getPhone(),memberList.get(x).getRole(),removeProjectButton,editProjectButton,viewMemberButton},index);
+                viewMemberTable.addItem(new Object[] {index,memberList.get(x).getUserName(),memberList.get(x).getEmail(),memberList.get(x).getFirstName(),memberList.get(x).getLastName(),memberList.get(x).getExperience(),memberList.get(x).getContact(),memberList.get(x).getRole(),removeProjectButton,editProjectButton,viewMemberButton},index);
 
                 removeProjectButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
@@ -156,7 +156,7 @@ public class ViewAllMember {
                 editProjectButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
 
-                        //ProjectWindow.open((Project)event.getButton().getData());
+                        MemberWindow.open((User)event.getButton().getData());
 
 
                     }

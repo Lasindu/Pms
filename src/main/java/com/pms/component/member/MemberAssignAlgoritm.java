@@ -1,5 +1,6 @@
 package com.pms.component.member;
 
+import com.pms.dao.UserDAO;
 import com.pms.domain.Task;
 import com.pms.domain.User;
 import org.hibernate.Query;
@@ -15,19 +16,19 @@ public class MemberAssignAlgoritm {
     private SessionFactory sessionFactory;
 
 
-    public List<User> getMember(Task task){
+    public List<User> getMember(){
 
-        List<User> list = getAvailableAndRelatedMember(task.getMemberType());
-        for(int i=0;i<list.size();i++){
-            // implementing
-        }
+        List<User> userList = getAvailableAndRelatedMember();
 
-        return null;
+
+        return userList;
     }
 
-    public List<User> getAvailableAndRelatedMember(String memberType){
+    public List<User> getAvailableAndRelatedMember(){
 
-        return null;
+        UserDAO userObj=new UserDAO();
+        List<User> userList = userObj.loadMembers();
+        return userList;
     }
     public List<User> checkFutureTask(){
 

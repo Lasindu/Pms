@@ -5,8 +5,7 @@ import com.pms.dao.ProjectDAO;
 import com.pms.dao.UserDAO;
 import com.pms.domain.Project;
 import com.pms.domain.User;
-import com.vaadin.server.Responsive;
-import com.vaadin.server.VaadinSession;
+import com.vaadin.server.*;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -39,6 +38,7 @@ public class ViewMember extends CustomComponent {
 
 
     private void buildViewMember() {
+
         User user = (User) VaadinSession.getCurrent().getAttribute(
                 User.class.getName());
         userRole = user.getRole();
@@ -66,14 +66,15 @@ public class ViewMember extends CustomComponent {
         header.addComponent(title);
 
         viewProjectLayout.addComponent(header);
-
+        Image proImg=new Image("",new ThemeResource("img/profile.jpg"));
+        viewProjectLayout.addComponent(proImg);
         Label deliveredDate=new Label("Username :   "+user.getUserName());
         viewProjectLayout.addComponent(deliveredDate);
         Label name=new Label("Email :   "+user.getEmail());
         viewProjectLayout.addComponent(name);
-        Label clientName= new Label("Mobile :   "+user.getPhone());
+        Label clientName= new Label("Mobile :   "+user.getContact());
         viewProjectLayout.addComponent(clientName);
-        Label description=new Label("Address :   "+user.getLocation());
+        Label description=new Label("Address :   "+user.getExperience());
         viewProjectLayout.addComponent(description);
         Label startDate=new Label("Role :   "+user.getRole());
         viewProjectLayout.addComponent(startDate);

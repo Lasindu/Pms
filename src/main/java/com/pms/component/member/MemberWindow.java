@@ -5,6 +5,7 @@ import com.pms.dao.ProjectDAO;
 import com.pms.dao.UserDAO;
 import com.pms.domain.Project;
 import com.pms.domain.User;
+import com.sun.java.swing.plaf.windows.resources.windows;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.PropertyId;
@@ -18,6 +19,7 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -26,7 +28,7 @@ import java.util.Date;
 /**
  * Created by lasindu on 7/15/2015.
  */
-public class MemberWindow extends Window{
+public class MemberWindow extends Window {
 
     private Collection<User> userCollection;
 
@@ -34,27 +36,32 @@ public class MemberWindow extends Window{
     private User user;
     private boolean editmode=false;
 
-    @PropertyId("username")
+    @PropertyId("userName")
     private TextField userName;
+    @PropertyId("firstName")
+    private TextField firstName;
+    @PropertyId("lastName")
+    private TextField lastName;
+    @PropertyId("upload")
+    private Upload upload;
+    @PropertyId("dateOfBirth")
+    private PopupDateField dateOfBirth;
     @PropertyId("email")
     private TextField email;
-    @PropertyId("firstname")
-    private TextField firstName;
-    @PropertyId("lastname")
-    private TextField lastName;
+    @PropertyId("password")
+    private TextField password;
+    @PropertyId("contact")
+    private TextField contact;
+    @PropertyId("gender")
+    private Select gender;
     @PropertyId("role")
     private Select role;
-    @PropertyId("skill")
-    private Select skill;
-    //private TextField role;
-    @PropertyId("discription")
-    private TextArea discription;
-    @PropertyId("technology")
-    private TextArea technology;
-    @PropertyId("dateofbirth")
-    private PopupDateField dateOfBirth;
-    @PropertyId("multipleselect")
-    private ListSelect select;
+    @PropertyId("experience")
+    private TextArea experience;
+    @PropertyId("technicalSkills")
+    private Select technicalSkill;
+    @PropertyId("domainSkills")
+    private Select domainSkill;
 
 
     private MemberWindow(User user)
@@ -110,9 +117,8 @@ public class MemberWindow extends Window{
 
         userName = new TextField("User Name");
         userName.setNullRepresentation("");
-
         userName.setRequired(true);
-        userName.setRequiredError("Required This");
+        userName.setRequiredError("User Name is Required");
         content.addComponent(userName);
 
         firstName = new TextField("First Name");
@@ -123,34 +129,62 @@ public class MemberWindow extends Window{
         lastName.setNullRepresentation("");
         content.addComponent(lastName);
 
-        email = new TextField("Email");
-        email.setNullRepresentation("");
-        content.addComponent(email);
+        upload = new Upload("Upload Profile Image", new Upload.Receiver() {
+            @Override
+            public OutputStream receiveUpload(String s, String s1) {
+                return null;
+            }
+        });
+        content.addComponent(upload);
 
-        dateOfBirth = new PopupDateField  ("Date Of birth");
+        dateOfBirth = new PopupDateField("Date Of birth");
         dateOfBirth.setValue(new Date());
         dateOfBirth.setDateFormat("yyyy-MM-dd");
         content.addComponent(dateOfBirth);
 
-        role = new Select("Select Role");
+        email = new TextField("Email");
+        email.setNullRepresentation("");
+        content.addComponent(email);
+
+        password = new TextField("Password");
+        password.setNullRepresentation("");
+        content.addComponent(password);
+
+        contact = new TextField("Contact");
+        contact.setNullRepresentation("");
+        content.addComponent(contact);
+
+        gender = new Select("Select Gender");
         //role.setNullRepresentation("");
+        gender.addItem("Male");
+        gender.addItem("Female");
+        content.addComponent(gender);
+
+        role = new Select("Select Role");
         role.addItem("project manager");
         role.addItem("team leader");
         role.addItem("software engineer");
         role.addItem("quality engineer");
         content.addComponent(role);
 
-        discription = new TextArea("Address");
-        discription.setNullRepresentation("");
-        content.addComponent(discription);
+        experience = new TextArea("Experience");
+        experience.setNullRepresentation("");
+        content.addComponent(experience);
 
-        skill = new Select("Select Skill");
-        skill.addItem("Java");
-        skill.addItem("C# .NET");
-        skill.addItem("VB .NET");
-        skill.addItem("PHP");
-        content.addComponent(skill);
+        technicalSkill = new Select("Select Technical Skill");
+        technicalSkill.addItem("Java");
+        technicalSkill.addItem("C# .NET");
+        technicalSkill.addItem("VB .NET");
+        technicalSkill.addItem("PHP");
+        content.addComponent(technicalSkill);
 
+        domainSkill = new Select("Select Domain Skill");
+        domainSkill.addItem("Patient");
+        domainSkill.addItem("Car Administration");
+        domainSkill.addItem("Medication");
+        domainSkill.addItem("Birth");
+        domainSkill.addItem("RTT");
+        content.addComponent(domainSkill);
 
         return content;
 
@@ -205,12 +239,8 @@ public class MemberWindow extends Window{
                     }
                     else
                     {
-                        user=(User) VaadinSession.getCurrent().getAttribute(
-                                User.class.getName());
-                        //we have to use this method for create new project because of  many to many mapping
-                        UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
-
-                        userDAO.updateUser(user);
+                        UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+                        //userDAO.setUser(user);
 
                         Notification success = new Notification(
                                 "Member Created successfully");
@@ -221,7 +251,7 @@ public class MemberWindow extends Window{
 
                     }
                     UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
-                    userDAO.updateUser(user);
+                    //userDAO.updateUser(user);
 
                     // getUI().getNavigator().navigateTo("/");
                     Page.getCurrent().reload();
