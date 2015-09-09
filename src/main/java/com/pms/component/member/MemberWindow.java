@@ -112,7 +112,7 @@ public class MemberWindow extends Window{
         userName.setNullRepresentation("");
 
         userName.setRequired(true);
-        userName.setRequiredError("Required");
+        userName.setRequiredError("Required This");
         content.addComponent(userName);
 
         firstName = new TextField("First Name");
