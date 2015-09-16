@@ -1,17 +1,22 @@
 package com.pms.view.memberassign;
 
+import com.pms.component.ViewAllProjects;
+import com.pms.component.member.ViewAllTask;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 /**
- * Created by Upulie on 4/1/2015.
+ * Created by Lasindu on 4/1/2015.
  */
-public class MemberAssignView extends VerticalLayout implements View {
+public class MemberAssignView extends CssLayout implements View {
 
-    private final VerticalLayout root;
+    private VerticalLayout mainLayout;
+    private Panel mainPanel;
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
@@ -22,13 +27,17 @@ public class MemberAssignView extends VerticalLayout implements View {
     {
         addStyleName(ValoTheme.PANEL_BORDERLESS);
         setSizeFull();
-        root = new VerticalLayout();
-        root.setSizeFull();
-        root.setMargin(true);
-        root.addStyleName("dashboard-view");
-        addComponent(root);
 
-        root.addComponent(new Label("Member Assign View"));
+        mainPanel= new Panel();
+        mainPanel.setSizeFull();
+        addComponent(mainPanel);
+
+        mainLayout= new VerticalLayout();
+        //mainLayout.setSizeFull();
+        mainPanel.setContent(mainLayout);
+
+        ViewAllTask viewAllTasks=new ViewAllTask();
+        mainLayout.addComponent(viewAllTasks.getAllTasks());
     }
 
 }

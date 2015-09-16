@@ -3,6 +3,7 @@ package com.pms.view;
 //#import com.pms.view.dashboard.DashboardView;
 import com.pms.view.crhandle.CrHandleView;
 import com.pms.view.dashboard.DashboardView;
+import com.pms.view.member.Member;
 import com.pms.view.memberassign.MemberAssignView;
 import com.pms.view.scheduletask.ScheduleTaskView;
 import com.vaadin.navigator.View;
@@ -13,7 +14,8 @@ public enum DashboardViewType {
     DASHBOARD("dashboard", DashboardView.class, FontAwesome.HOME, true), CRHANDLE(
             "CR_Handle", CrHandleView.class, FontAwesome.BAR_CHART_O, false), MEMBERASSIGN(
             "Member_Assign", MemberAssignView.class, FontAwesome.TABLE, false), SCHEDULETASK(
-            "Schedule_Task", ScheduleTaskView.class, FontAwesome.FILE_TEXT_O, true);
+            "Schedule_Task", ScheduleTaskView.class, FontAwesome.FILE_TEXT_O, true),MEMBER(
+            "Member", Member.class, FontAwesome.FILE_TEXT_O, true);
 
     private final String viewName;
     private final Class<? extends View> viewClass;
@@ -26,7 +28,7 @@ public enum DashboardViewType {
         this.viewName = viewName;
         this.viewClass = viewClass;
         this.icon = icon;
-        this.stateful = stateful;
+        this.stateful = stateful;//j
     }
 
     public boolean isStateful() {

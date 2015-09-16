@@ -2,6 +2,7 @@ package com.pms.view.scheduletask;
 
 import com.pms.DashboardUI;
 import com.pms.component.*;
+import com.pms.component.member.ViewAllTask;
 import com.pms.dao.ProjectDAO;
 import com.pms.dao.UserStoryDAO;
 import com.pms.domain.Project;
@@ -98,8 +99,8 @@ public class ScheduleTaskView extends CssLayout implements View {
         //mainLayout.setSizeFull();
         mainPanel.setContent(mainLayout);
 
-        ViewAllProjects viewAllProjects=new ViewAllProjects();
-        mainLayout.addComponent(viewAllProjects.getAllProjects());
+        ViewAllTask viewAllTasks=new ViewAllTask();
+        mainLayout.addComponent(viewAllTasks.getAllTasks());
 
 
     }

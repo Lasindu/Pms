@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Date;
 
 /**
- * Created by Damitha on 6/2/2015.
+ * Created by Upulie on 6/2/2015.
  */
 public class ProjectWindow extends Window {
 
@@ -212,9 +212,6 @@ public class ProjectWindow extends Window {
                             projectsLoadedUsr.getProjects().add(project);
 
                             userDAO.updateUser(projectsLoadedUsr);
-
-
-
 
                             Notification success = new Notification(
                                     "Project Created successfully");
