@@ -1,6 +1,7 @@
-package com.pms.component;
+package com.pms.component.member;
 
 import com.pms.DashboardUI;
+import com.pms.component.ProjectWindow;
 import com.pms.dao.ProjectDAO;
 import com.pms.dao.UserDAO;
 import com.pms.domain.Project;
@@ -24,105 +25,92 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by Damitha on 6/2/2015.
+ * Created by Lasindu on 7/4/2015.
  */
-public class ViewAllProjects {
-
-    public VerticalLayout viewProjectLayout;
-    private Table viewProjectTable;
+public class ViewAllMember {
+    public VerticalLayout viewMemberLayout;
+    private Table viewMemberTable;
     private Button create;
     private String userRole;
 
-    public ViewAllProjects()
+    public ViewAllMember()
     {
-        buildViewAllProjects();
+        buildViewAllMembers();
 
     }
-
-    public Component getAllProjects()
+    public Component getAllMembers()
     {
-        return viewProjectLayout;
+        return viewMemberLayout;
     }
-
-
-    private void buildViewAllProjects()
+    private void buildViewAllMembers()
     {
-
-
         User user = (User) VaadinSession.getCurrent().getAttribute(
                 User.class.getName());
 
         userRole=user.getRole();
 
-
-
-
-        viewProjectLayout = new VerticalLayout();
+        viewMemberLayout = new VerticalLayout();
         //viewProjectLayout.setCaption("View Project");
-        viewProjectLayout.setMargin(true);
-        viewProjectLayout.setSpacing(true);
-        viewProjectLayout.setSizeFull();
+        viewMemberLayout.setMargin(true);
+        viewMemberLayout.setSpacing(true);
+        viewMemberLayout.setSizeFull();
 
-        viewProjectLayout.addComponent(buildToolbar());
+        viewMemberLayout.addComponent(buildToolbar());
 
+        //Member table
+        viewMemberTable= new Table("");
+        viewMemberTable.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
+        viewMemberTable.addStyleName(ValoTheme.TABLE_COMPACT);
+        viewMemberTable.setSelectable(true);
 
-        viewProjectTable= new Table("");
-        //viewProjectTable.addStyleName(ValoTheme.TABLE_BORDERLESS);
-        viewProjectTable.addStyleName(ValoTheme.TABLE_NO_HORIZONTAL_LINES);
-        viewProjectTable.addStyleName(ValoTheme.TABLE_COMPACT);
-        viewProjectTable.setSelectable(true);
-
-        viewProjectTable.addContainerProperty("Index", Integer.class, null);
-        viewProjectTable.addContainerProperty("Name",  String.class, null);
-        viewProjectTable.addContainerProperty("Client Name", String.class, null);
-      //viewProjectTable.addContainerProperty("Description", String.class, null);
-        viewProjectTable.addContainerProperty("Created Date", String.class, null);
-      //viewProjectTable.addContainerProperty("Start Date", String.class, null);
-      //viewProjectTable.addContainerProperty("Delivered Date", String.class, null);
+        viewMemberTable.addContainerProperty("Index", Integer.class, null);
+        viewMemberTable.addContainerProperty("Username",  String.class, null);
+        viewMemberTable.addContainerProperty("Email", String.class, null);
+        viewMemberTable.addContainerProperty("First name", String.class, null);
+        viewMemberTable.addContainerProperty("Last Name", String.class, null);
+        viewMemberTable.addContainerProperty("Location", String.class, null);
+        viewMemberTable.addContainerProperty("Phone Number", String.class, null);
+        viewMemberTable.addContainerProperty("Role", String.class, null);
 
         if(userRole.equals("admin")||userRole.equals("pm"))
         {
-            viewProjectTable.addContainerProperty("Remove Project", Button.class, null);
-            viewProjectTable.addContainerProperty("Edit Project", Button.class, null);
-
+            viewMemberTable.addContainerProperty("Remove Member", Button.class, null);
+            viewMemberTable.addContainerProperty("Edit Member", Button.class, null);
         }
 
-        viewProjectTable.addContainerProperty("View Project", Button.class, null);
-        viewProjectTable.setSizeFull();
+        viewMemberTable.addContainerProperty("View Member", Button.class, null);
+        viewMemberTable.setSizeFull();
 
-
-
+        //List<User> projectList = new ArrayList();
         UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
         //used session user to get the user projects
-        List<Project> projectList = new ArrayList();
-        User projectsLoadedUser= userDAO.loadUserProjects(user);
-        projectList.addAll(projectsLoadedUser.getProjects());
+        List<User> memberList = new ArrayList();
+        //User memberLoadedUser= userDAO.loadMembers();
+        memberList = userDAO.loadMembers();
+        //System.out.print(memberLoadedUser);
+        //memberList.addAll(memberLoadedUser.getProjects());
 
-
-        for(int x=0;x<projectList.size();x++)
+        for(int x=0;x<memberList.size();x++)
         {
             int index=x+1;
 
             if (userRole.equals("admin")||userRole.equals("pm"))
             {
-                Button removeProjectButton=new Button("Remove Project");
-                Button editProjectButton=new Button("Edit Project");
-                Button viewProjectButton=new Button("View Project");
+                Button removeProjectButton=new Button("Remove Member");
+                Button editProjectButton=new Button("Edit Member");
+                Button viewMemberButton=new Button("View Member");
+                removeProjectButton.setData(memberList.get(x));
+                editProjectButton.setData(memberList.get(x));
+                viewMemberButton.setData(memberList.get(x).getUserName());
 
-
-                removeProjectButton.setData(projectList.get(x));
-                editProjectButton.setData(projectList.get(x));
-                viewProjectButton.setData(projectList.get(x).getName());
-
-                //viewProjectTable.addItem(new Object[] {index,projectList.get(x).getName(),projectList.get(x).getClientName(),projectList.get(x).getDescription(),projectList.get(x).getDate(),projectList.get(x).getStartDate(),projectList.get(x).getDeliveredDate(),removeProjectButton,editProjectButton,viewProjectButton},index);
-                viewProjectTable.addItem(new Object[] {index,projectList.get(x).getName(),projectList.get(x).getClientName(),projectList.get(x).getDate(),removeProjectButton,editProjectButton,viewProjectButton},index);
+                viewMemberTable.addItem(new Object[] {index,memberList.get(x).getUserName(),memberList.get(x).getEmail(),memberList.get(x).getFirstName(),memberList.get(x).getLastName(),memberList.get(x).getExperience(),memberList.get(x).getContact(),memberList.get(x).getRole(),removeProjectButton,editProjectButton,viewMemberButton},index);
 
                 removeProjectButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
-
+                        /*
                         final Project project=(Project)event.getButton().getData();
 
-                        ConfirmDialog.show(DashboardUI.getCurrent(), "Please Confirm:", "Are you sure you want to delete project named :"+project.getName(),
+                        ConfirmDialog.show(DashboardUI.getCurrent(), "Please Confirm:", "Are you sure you want to delete Member named :" + project.getName(),
                                 "I am", "Not quite", new ConfirmDialog.Listener() {
 
                                     public void onClose(ConfirmDialog dialog) {
@@ -132,11 +120,11 @@ public class ViewAllProjects {
 
                                             //remove project form all users // this is only way to remove many to many mapping
 
-                                            ProjectDAO projectDAO= (ProjectDAO) DashboardUI.context.getBean("Project");
+                                            ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
 
                                             //have to load project users because of lazy retrival object then while creating new project it will not add to local session
                                             //so if delete project when same session project creation then it will give exeption to solve that need to load project users
-                                            Project  usersLoadedProject = projectDAO.loadProjectUsers(project);
+                                            Project usersLoadedProject = projectDAO.loadProjectUsers(project);
 
 
                                             Collection<User> users = usersLoadedProject.getUsers();
@@ -145,11 +133,10 @@ public class ViewAllProjects {
                                             UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
                                             Iterator iter = users.iterator();
                                             while (iter.hasNext()) {
-                                                User user= (User)iter.next();
+                                                User user = (User) iter.next();
                                                 user.getProjects().remove(usersLoadedProject);
                                                 userDAO.updateUser(user);
                                             }
-
 
 
                                             projectDAO.removeProject(project);
@@ -161,7 +148,7 @@ public class ViewAllProjects {
                                         }
                                     }
                                 });
-
+                        */
                     }
                 });
 
@@ -169,16 +156,16 @@ public class ViewAllProjects {
                 editProjectButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
 
-                        ProjectWindow.open((Project)event.getButton().getData());
+                        MemberWindow.open((User)event.getButton().getData());
 
 
                     }
                 });
 
-                viewProjectButton.addClickListener(new Button.ClickListener() {
+                viewMemberButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
-
-                        DashboardUI.getCurrent().getNavigator().navigateTo("Schedule_Task/"+(String)event.getButton().getData());
+                        System.out.println("res" +Page.getCurrent().getUriFragment());
+                        DashboardUI.getCurrent().getNavigator().navigateTo("Member/" + (String) event.getButton().getData());
 
 
                     }
@@ -188,14 +175,13 @@ public class ViewAllProjects {
             {
 
                 Button viewProjectButton = new Button("View Project");
-                viewProjectButton.setData(projectList.get(x).getName());
+                viewProjectButton.setData(memberList.get(x).getUserName());
 
-                viewProjectTable.addItem(new Object[]{index, projectList.get(x).getName(), projectList.get(x).getClientName(), projectList.get(x).getDescription(), projectList.get(x).getDate(), projectList.get(x).getStartDate(), projectList.get(x).getDeliveredDate(), viewProjectButton}, index);
 
                 viewProjectButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
 
-                        DashboardUI.getCurrent().getNavigator().navigateTo("Schedule_Task/" + (String) event.getButton().getData());
+                        //DashboardUI.getCurrent().getNavigator().navigateTo("Schedule_Task/" + (String) event.getButton().getData());
 
 
                     }
@@ -206,20 +192,19 @@ public class ViewAllProjects {
 
         }
 
-
-
-        viewProjectLayout.addComponent(viewProjectTable);
-        viewProjectLayout.setExpandRatio(viewProjectTable,1);
+        viewMemberLayout.addComponent(viewMemberTable);
+        viewMemberLayout.setExpandRatio(viewMemberTable,1);
 
 
     }
+
     private Component buildToolbar() {
         HorizontalLayout header = new HorizontalLayout();
         header.addStyleName("viewheader");
         header.setSpacing(true);
         Responsive.makeResponsive(header);
 
-        Label title = new Label("Project List");
+        Label title = new Label("Member List");
         title.setSizeUndefined();
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -248,12 +233,12 @@ public class ViewAllProjects {
 
     private Button buildCreateReport() {
 
-        final Button createNewProjectButton = new Button("Create New Project");
+        final Button createNewProjectButton = new Button("Add New Member");
         createNewProjectButton.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                Project project= new Project();
-                project.setName("");
-                ProjectWindow.open(project);
+                User user = new User();
+                user.setFirstName("");
+                MemberWindow.open(user);
 
 
             }
@@ -268,7 +253,7 @@ public class ViewAllProjects {
         filter.addTextChangeListener(new FieldEvents.TextChangeListener() {
             @Override
             public void textChange(final FieldEvents.TextChangeEvent event) {
-                Container.Filterable data = (Container.Filterable) viewProjectTable.getContainerDataSource();
+                Container.Filterable data = (Container.Filterable) viewMemberTable.getContainerDataSource();
                 data.removeAllContainerFilters();
                 data.addContainerFilter(new Container.Filter() {
                     @Override
@@ -299,7 +284,7 @@ public class ViewAllProjects {
             }
         });
 
-        filter.setInputPrompt("Filter");
+        filter.setInputPrompt("Filter Member");
         filter.setIcon(FontAwesome.SEARCH);
         filter.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
         filter.addShortcutListener(new ShortcutListener("Clear",
@@ -307,13 +292,12 @@ public class ViewAllProjects {
             @Override
             public void handleAction(final Object sender, final Object target) {
                 filter.setValue("");
-                ((com.vaadin.data.Container.Filterable) viewProjectTable.getContainerDataSource())
+                ((com.vaadin.data.Container.Filterable) viewMemberTable.getContainerDataSource())
                         .removeAllContainerFilters();
             }
         });
         return filter;
     }
-
     private boolean filterByProperty(final String prop, final Item item,
                                      final String text) {
         if (item == null || item.getItemProperty(prop) == null
@@ -327,4 +311,5 @@ public class ViewAllProjects {
         }
         return false;
     }
+
 }

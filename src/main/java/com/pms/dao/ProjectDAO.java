@@ -64,7 +64,6 @@ public class ProjectDAO {
         return list;
     }
 
-
     public void updateProject(Project project)
     {
         Session session = getSessionFactory().openSession();
