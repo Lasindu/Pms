@@ -155,9 +155,6 @@ public class UserStoryWindow extends Window {
             {
                 preRequisitsList.select(preRequistit);
             }
-
-            userStoryName.setReadOnly(true);
-
         }
 
 
@@ -240,33 +237,14 @@ public class UserStoryWindow extends Window {
                                 for (UserStory userStory1 : project.getProjectUserStories()) {
                                     if (userStory1.getName().equals(preReqsuist)) {
                                         userStory1.setDependancy(userStory1.getDependancy().replace(userStory.getName(),""));
-
-
-                                        if(userStory1.getDependancy()!=null && !userStory1.getDependancy().isEmpty())
+                                        if(userStory1.getDependancy().contains(",,"))
                                         {
-                                            if(userStory1.getDependancy().startsWith(",,"))
-                                            {
-                                                userStory1.setDependancy(userStory1.getDependancy().replace(",,",""));
-                                            }
-
-                                            else if(userStory1.getDependancy().contains(",,"))
-                                            {
-                                                userStory1.setDependancy(userStory1.getDependancy().replace(",,",","));
-                                            }
-                                            else if(userStory1.getDependancy().endsWith(","))
-                                            {
-                                                userStory1.setDependancy(userStory1.getDependancy().substring(0,userStory1.getDependancy().length()-1));
-                                            }
-
-                                            if(userStory1.getDependancy().isEmpty())
-                                            {
-                                                userStory1.setDependancy(null);
-                                            }
-
-
-
+                                            userStory1.setDependancy(userStory1.getDependancy().replace(",,",","));
                                         }
-
+                                        if(userStory1.getDependancy().endsWith(","))
+                                        {
+                                            userStory1.setDependancy(userStory1.getDependancy().substring(0,userStory1.getDependancy().length()-1));
+                                        }
 
                                         userStoryDAO.updateUserStory(userStory1);
                                         break;
@@ -301,7 +279,7 @@ public class UserStoryWindow extends Window {
                         for (UserStory userStory1 : project.getProjectUserStories()) {
                             if(userStory1.getName().equals(v.toString()))
                             {
-                                if(userStory1.getDependancy()==null || userStory1.getDependancy().isEmpty())
+                                if(userStory1.getDependancy().isEmpty())
                                 {
                                     userStory1.setDependancy(userStory.getName());
                                 }

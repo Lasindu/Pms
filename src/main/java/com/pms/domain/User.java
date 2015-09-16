@@ -3,26 +3,27 @@ package com.pms.domain;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 @Entity
 @org.hibernate.annotations.Entity(selectBeforeUpdate = true)
 @Table(name="User")
 public final class User {
 
+
     @Id
     private String userName;
+    private String password;
+    private String role;
     private String firstName;
     private String lastName;
-    private Date dateOfBirth;
+    private String title;
+    private boolean male;
     private String email;
-    private String password;
-    private String contact;
-    private String gender;
-    private String role;
-    private String experience;
-    private String technicalSkills;
-    private String domainSkills;
+    private String location;
+    private String phone;
+    private Integer newsletterSubscription;
+    private String website;
+    private String bio;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_project", catalog = "pms", joinColumns = {
@@ -31,28 +32,99 @@ public final class User {
                     nullable = false, updatable = false) })
     private Collection<Project> projects = new ArrayList<Project>();
 
+
+
+
+
+
+
+
     //getters and setters
+
     public Collection<Project> getProjects() {
         return projects;
     }
+
     public void setProjects(Collection<Project> projects) {
         this.projects = projects;
     }
-
-
-    public String getUserName() {
-        return userName;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setEmail(final String email) {
+        this.email = email;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(final String location) {
+        this.location = location;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(final String phone) {
+        this.phone = phone;
+    }
+
+    public Integer getNewsletterSubscription() {
+        return newsletterSubscription;
+    }
+
+    public void setNewsletterSubscription(final Integer newsletterSubscription) {
+        this.newsletterSubscription = newsletterSubscription;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(final String website) {
+        this.website = website;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(final String bio) {
+        this.bio = bio;
+    }
+
+    public boolean isMale() {
+        return male;
+    }
+
+    public void setMale(final boolean male) {
+        this.male = male;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(final String role) {
+        this.role = role;
     }
 
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -60,24 +132,16 @@ public final class User {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
-    public Date getDateOfBirth() {
-        return dateOfBirth;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getPassword() {
@@ -88,51 +152,4 @@ public final class User {
         this.password = password;
     }
 
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public String getExperience() {
-        return experience;
-    }
-
-    public void setExperience(String experience) {
-        this.experience = experience;
-    }
-
-    public String getTechnicalSkills() {
-        return technicalSkills;
-    }
-
-    public void setTechnicalSkills(String technicalSkills) {
-        this.technicalSkills = technicalSkills;
-    }
-
-    public String getDomainSkills() {
-        return domainSkills;
-    }
-
-    public void setDomainSkills(String domainSkills) {
-        this.domainSkills = domainSkills;
-    }
 }

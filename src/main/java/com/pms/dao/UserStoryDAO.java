@@ -1,7 +1,6 @@
 package com.pms.dao;
 
 import com.pms.domain.Project;
-import com.pms.domain.Task;
 import com.pms.domain.User;
 import com.pms.domain.UserStory;
 import org.hibernate.Query;
@@ -82,20 +81,6 @@ public class UserStoryDAO {
         session.close();
 
 
-    }
-
-
-    public Collection<Task> getUserStoryTaskList(UserStory userStory)
-    {
-        Session session = getSessionFactory().openSession();
-        session.beginTransaction();
-        UserStory userStory1 =(UserStory)session.get(UserStory.class, userStory.getUserStoryId());
-        Collection<Task> taskCollection = userStory1.getUserStoryTasks();
-        int x= taskCollection.size();
-        session.getTransaction().commit();
-        session.close();
-
-        return taskCollection;
     }
 
 

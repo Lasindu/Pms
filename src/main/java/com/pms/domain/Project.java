@@ -30,6 +30,15 @@ public class Project{
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "projects")
     private Collection<User> users = new ArrayList<User>();
 
+
+
+
+
+
+
+
+
+
     //getters and setters
 
     public Collection<User> getUsers() {

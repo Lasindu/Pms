@@ -2,7 +2,6 @@ package com.pms.component;
 
 import com.pms.DashboardUI;
 import com.pms.dao.ProjectDAO;
-import com.pms.dao.TaskDAO;
 import com.pms.dao.UserStoryDAO;
 import com.pms.domain.Project;
 import com.pms.domain.Task;
@@ -33,7 +32,7 @@ public class TaskWindow extends Window {
 
 
 
-    UserStory userStory;
+    private UserStory userStory;
     private Collection<Task> userStoryTasks;
 
     private final BeanFieldGroup<Task> fieldGroup;
@@ -48,7 +47,7 @@ public class TaskWindow extends Window {
     private ComboBox priority;
     @PropertyId("severity")
     private ComboBox severity;
-    private OptionGroup preRequisitsList;
+    private ListSelect preRequisitsList;
     //private ListSelect dependancyList;
     @PropertyId("memberType")
     private TextField memberType;
@@ -145,41 +144,25 @@ public class TaskWindow extends Window {
         severity.addItem(5);
         taskForm.addComponent(severity);
 
-
-
-        preRequisitsList = new OptionGroup("Pre Requisits");
+        preRequisitsList = new ListSelect("Pre Requisits");
         preRequisitsList.setWidth("400px");
         preRequisitsList.setNullSelectionAllowed(true);
-        for (Task task1 : userStoryTasks) {
-
-            preRequisitsList.addItem(task1.getName());
-
+        for (Task task : userStoryTasks) {
+            preRequisitsList.addItem(task.getName());
         }
         preRequisitsList.setMultiSelect(true);
+        preRequisitsList.setRows(7);
+        taskForm.addComponent(preRequisitsList);
 
-
-        Panel preRequestPanel = new Panel("");
-        preRequestPanel.setHeight("100px");
-        preRequestPanel.setContent(preRequisitsList);
-        VerticalLayout preRequistLayout= new VerticalLayout();
-        preRequistLayout.setCaption("Pre Requisits");
-        preRequistLayout.addComponent(preRequestPanel);
-        taskForm.addComponent(preRequistLayout);
-
-        if(editmode)
-        {
-            String[] preRquisitList= task.getPreRequisits().split(",");
-
-            for(String preRequistit:preRquisitList)
-            {
-                preRequisitsList.select(preRequistit);
-            }
-
-            //task1.setReadOnly(true);
-
+   /*     dependancyList = new ListSelect("Dependancy");
+        for (Task task : userStoryTasks) {
+            dependancyList.addItem(task.getName());
         }
-
-
+        dependancyList.setWidth("400px");
+        dependancyList.setNullSelectionAllowed(true);
+        dependancyList.setMultiSelect(true);
+        dependancyList.setRows(7);
+        taskForm.addComponent(dependancyList);*/
 
         memberType= new TextField("Member Type");
         memberType.setNullRepresentation("");
@@ -255,52 +238,6 @@ public class TaskWindow extends Window {
 
                     }
 
-                    TaskDAO taskDAO = (TaskDAO) DashboardUI.context.getBean("Task");
-
-                    //set prereuist for tasks
-                    StringBuilder preRequisitString = new StringBuilder();
-                    Set<Item> preRequisitsValues = (Set<Item>) preRequisitsList.getValue();
-                    int size2 = preRequisitsValues.size();
-                    int index2 = 1;
-                    for (Object v : preRequisitsValues) {
-
-                        preRequisitString.append(v.toString());
-                        if (index2 != size2)
-                            preRequisitString.append(",");
-                        index2++;
-
-                        //following section manually set dependency in other user stories if this user story depend on them
-                        for (Task task1 : userStory.getUserStoryTasks()) {
-                            if(task1.getName().equals(v.toString()))
-                            {
-                                if(task1.getDependancy()==null || task1.getDependancy().isEmpty())
-                                {
-                                    task1.setDependancy(task.getName());
-                                }
-                                else
-                                {
-                                    StringBuilder dependencyString1 = new StringBuilder();
-                                    dependencyString1.append(task1.getDependancy());
-                                    dependencyString1.append(','+task.getName());
-
-                                    task1.setDependancy(dependencyString1.toString());
-
-                                }
-
-                                taskDAO.updateTask(task1);
-
-
-                            }
-                        }
-
-
-
-
-
-                    }
-                    task.setPreRequisits(preRequisitString.toString());
-
-
 
 
                     UserStoryDAO userStoryDAO= (UserStoryDAO)DashboardUI.context.getBean("UserStory");
@@ -353,6 +290,10 @@ public class TaskWindow extends Window {
 
         return footer;
     }
+
+
+
+
 
     public static void open(Task task) {
         Window w = new TaskWindow(task);

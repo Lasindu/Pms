@@ -26,7 +26,6 @@ public class UserStory {
     private String releasedDate;
     private String state;
     private boolean CR;
-    private int sequenceNo;
 
 
 
@@ -37,17 +36,16 @@ public class UserStory {
     @OneToMany(mappedBy="userStory",fetch=FetchType.LAZY,cascade=CascadeType.ALL,orphanRemoval=true)
     private Collection<Task> userStoryTasks= new ArrayList<Task>();
 
+
+
+
+
+
+
+
+
+
     //getters and setters
-
-
-    public int getSequenceNo() {
-        return sequenceNo;
-    }
-
-    public void setSequenceNo(int sequenceNo) {
-        this.sequenceNo = sequenceNo;
-    }
-
     public Project getProject() {
         return project;
     }

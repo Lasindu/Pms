@@ -192,7 +192,8 @@ public class GanttChart  {
 
 
 
-
+        HashMap sortedUserSororyMap = new HashMap<Integer,UserStory>();
+        int sortedUserStoryCount=0;
 
 
         UserStoryDAO userStoryDAO= (UserStoryDAO)DashboardUI.context.getBean("UserStory");
@@ -200,95 +201,51 @@ public class GanttChart  {
 
         List<UserStory> highestPriorityUserStories = new ArrayList<UserStory>();
 
-        UserStory highestPriorityUserStory = new UserStory();
-        UserStory nextHighestPriorityUserStory= new UserStory();
 
 
-        for(UserStory userStory : allUserStories)
+        List<UserStory> priority1UserStories = new ArrayList<UserStory>();
+        List<UserStory> priority2UserStories = new ArrayList<UserStory>();
+        List<UserStory> priority3UserStories = new ArrayList<UserStory>();
+        List<UserStory> priority4UserStories = new ArrayList<UserStory>();
+        List<UserStory> priority5UserStories = new ArrayList<UserStory>();
+
+
+        for(UserStory userStory:allUserStories)
         {
             if(userStory.getPriority()==1)
-                highestPriorityUserStories.add(userStory);
+            {
+                priority1UserStories.add(userStory);
+            }
 
+            if(userStory.getPriority()==2)
+            {
+                priority2UserStories.add(userStory);
+            }
+
+            if(userStory.getPriority()==3)
+            {
+                priority3UserStories.add(userStory);
+            }
+
+            if(userStory.getPriority()==4)
+            {
+                priority4UserStories.add(userStory);
+            }
+
+            if(userStory.getPriority()==5)
+            {
+                priority5UserStories.add(userStory);
+            }
         }
 
-        if (highestPriorityUserStories.size()<2)
+        for(UserStory userStory:priority1UserStories)
         {
-            if (highestPriorityUserStories.size()==1)
-                highestPriorityUserStory=highestPriorityUserStories.get(0);
-
-            for(UserStory userStory : allUserStories)
+            if(priority1UserStories.size()>=2)
             {
-                if(userStory.getPriority()==2)
-                    highestPriorityUserStories.add(userStory);
 
             }
 
         }
-
-        if (highestPriorityUserStories.size()<2)
-        {
-            if (highestPriorityUserStories.size()==1)
-                highestPriorityUserStory=highestPriorityUserStories.get(0);
-
-            for(UserStory userStory : allUserStories)
-            {
-                if(userStory.getPriority()==3)
-                    highestPriorityUserStories.add(userStory);
-
-            }
-
-        }
-
-        if (highestPriorityUserStories.size()<2)
-        {
-            if (highestPriorityUserStories.size()==1)
-                highestPriorityUserStory=highestPriorityUserStories.get(0);
-
-            for(UserStory userStory : allUserStories)
-            {
-                if(userStory.getPriority()==4)
-                    highestPriorityUserStories.add(userStory);
-
-            }
-
-        }
-
-
-
-
-
-        if (!(highestPriorityUserStory==null))
-        {
-            if (highestPriorityUserStories.size()==2)
-            {
-                nextHighestPriorityUserStory=highestPriorityUserStories.get(1);
-                //finish the algo
-
-            }
-            else
-            {
-                if(highestPriorityUserStories.size()>2)
-                    ;
-                //need to follow algorithm for rest of others
-            }
-
-        }
-        else
-        {
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
 
 
 
