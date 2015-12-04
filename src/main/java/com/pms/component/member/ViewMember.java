@@ -264,13 +264,21 @@ public class ViewMember extends CustomComponent {
 
         submiRate.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-
+                UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+                Quality quality = new Quality();
                 int drd = Integer.parseInt(ReopenDefects.getValue().toString());
                 int dfd = Integer.parseInt(foundDefects.getValue().toString());
                 int dur = Integer.parseInt(userReview.getValue().toString());
                 int dlc = Integer.parseInt(learningCapacity.getValue().toString());
                 int dtw = Integer.parseInt(dedicationToWork.getValue().toString());
+                quality.setUserName(userName);
+                quality.setReopenDefects(drd);
+                quality.setFoundDefects(dfd);
+                quality.setUserReview(dur);
+                quality.setLearningCapacity(dlc);
+                quality.setDedicationToWork(dtw);
 
+                //userDAO.updateQuality(quality);
             }
         });
         return formLayout;
@@ -311,14 +319,24 @@ public class ViewMember extends CustomComponent {
 
         submiRateQa.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-
-                int dtw = Integer.parseInt(dedicationToWork.getValue().toString());
+                UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+                Quality quality = new Quality();
                 int ud = Integer.parseInt(uatDeffects.getValue().toString());
                 int rb = Integer.parseInt(reportedBugs.getValue().toString());
                 int ts = Integer.parseInt(testSuits.getValue().toString());
                 int wts = Integer.parseInt(writtenTestSuits.getValue().toString());
                 int lc = Integer.parseInt(learningCapacityQa.getValue().toString());
+                int dtw = Integer.parseInt(dedicationToWork.getValue().toString());
 
+                quality.setUserName(userName);
+                quality.setUatDefects(ud);
+                quality.setReportedBugs(rb);
+                quality.setTestSuits(ts);
+                quality.setWrittenTestSuits(wts);
+                quality.setLearningCapacity(lc);
+                quality.setDedicationToWork(dtw);
+
+                //userDAO.updateQuality(quality);
             }
         });
         return formLayout;

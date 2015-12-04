@@ -14,63 +14,80 @@ import java.util.Collection;
 @Table(name="Quality")
 public class Quality {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private int qId;
     private String userName;
-    private int timeCompletion;
-    private int bugsReopen;
-    private int bugsAfterRelease;
-    private int timelyReview;
-    private int learningCapacity;
+    private int reopenDefects;// dev
+    private int foundDefects;
+    private int userReview;
+    private int uatDefects; //qa
+    private int reportedBugs;
+    private int testSuits;
+    private int writtenTestSuits;
+    private int learningCapacity;//common
     private int dedicationToWork;
     private int rate;
-
-    public int getqId() {
-        return qId;
-    }
-
-    public void setqId(int qId) {
-        this.qId = qId;
-    }
 
     public String getUserName() {
         return userName;
     }
 
-    public void setUserName(String un) {
-        this.userName = un;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public int getBugsReopen() {
-        return bugsReopen;
+    public int getReopenDefects() {
+        return reopenDefects;
     }
 
-    public void setBugsReopen(int bugsReopen) {
-        this.bugsReopen = bugsReopen;
+    public void setReopenDefects(int reopenDefects) {
+        this.reopenDefects = reopenDefects;
     }
 
-    public int getTimeCompletion() {
-        return timeCompletion;
+    public int getFoundDefects() {
+        return foundDefects;
     }
 
-    public void setTimeCompletion(int timeCompletion) {
-        this.timeCompletion = timeCompletion;
+    public void setFoundDefects(int foundDefects) {
+        this.foundDefects = foundDefects;
     }
 
-    public int getBugsAfterRelease() {
-        return bugsAfterRelease;
+    public int getUserReview() {
+        return userReview;
     }
 
-    public void setBugsAfterRelease(int bugsAfterRelease) {
-        this.bugsAfterRelease = bugsAfterRelease;
+    public void setUserReview(int userReview) {
+        this.userReview = userReview;
     }
 
-    public int getTimelyReview() {
-        return timelyReview;
+    public int getUatDefects() {
+        return uatDefects;
     }
 
-    public void setTimelyReview(int timelyReview) {
-        this.timelyReview = timelyReview;
+    public void setUatDefects(int uatDefects) {
+        this.uatDefects = uatDefects;
+    }
+
+    public int getReportedBugs() {
+        return reportedBugs;
+    }
+
+    public void setReportedBugs(int reportedBugs) {
+        this.reportedBugs = reportedBugs;
+    }
+
+    public int getTestSuits() {
+        return testSuits;
+    }
+
+    public void setTestSuits(int testSuits) {
+        this.testSuits = testSuits;
+    }
+
+    public int getWrittenTestSuits() {
+        return writtenTestSuits;
+    }
+
+    public void setWrittenTestSuits(int writtenTestSuits) {
+        this.writtenTestSuits = writtenTestSuits;
     }
 
     public int getLearningCapacity() {
@@ -96,4 +113,6 @@ public class Quality {
     public void setRate(int rate) {
         this.rate = rate;
     }
+
+
 }

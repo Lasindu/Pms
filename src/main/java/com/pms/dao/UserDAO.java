@@ -25,6 +25,17 @@ public class UserDAO {
         session.close();
     }
 
+    public void removeUser(User user)
+    {
+        Session session = getSessionFactory().openSession();
+        session.beginTransaction();
+        session.delete(user);
+        session.getTransaction().commit();
+        session.close();
+
+    }
+
+
     public void setUser(User user)
     {
         Session session = getSessionFactory().openSession();
@@ -127,7 +138,14 @@ public class UserDAO {
         session.getTransaction().commit();
         session.close();
     }
-
+    public void updateQuality(Quality quality)
+    {
+        Session session = getSessionFactory().openSession();
+        session.beginTransaction();
+        session.update(quality);
+        session.getTransaction().commit();
+        session.close();
+    }
 
 
     public SessionFactory getSessionFactory() {

@@ -23,7 +23,7 @@ public class QualityDAO {
         session.close();
     }
 
-    public void updateUser(Quality quality)
+    public void updateQuality(Quality quality)
     {
         Session session = getSessionFactory().openSession();
         session.beginTransaction();

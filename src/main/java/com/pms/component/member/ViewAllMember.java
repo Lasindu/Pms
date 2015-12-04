@@ -80,7 +80,7 @@ public class ViewAllMember {
         viewMemberTable.setSizeFull();
 
         //List<User> projectList = new ArrayList();
-        UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
+        final UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
         //used session user to get the user projects
         List<User> memberList = new ArrayList();
         //User memberLoadedUser= userDAO.loadMembers();
@@ -105,48 +105,22 @@ public class ViewAllMember {
 
                 removeProjectButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
-                        /*
-                        final Project project=(Project)event.getButton().getData();
 
-                        ConfirmDialog.show(DashboardUI.getCurrent(), "Please Confirm:", "Are you sure you want to delete Member named :" + project.getName(),
+                        final User user=(User)event.getButton().getData();
+
+                        ConfirmDialog.show(DashboardUI.getCurrent(), "Please Confirm:", "Are you sure you want to delete Member named :" + user.getUserName(),
                                 "I am", "Not quite", new ConfirmDialog.Listener() {
 
                                     public void onClose(ConfirmDialog dialog) {
                                         if (dialog.isConfirmed()) {
-                                            // Confirmed to continue
-
-
-                                            //remove project form all users // this is only way to remove many to many mapping
-
-                                            ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
-
-                                            //have to load project users because of lazy retrival object then while creating new project it will not add to local session
-                                            //so if delete project when same session project creation then it will give exeption to solve that need to load project users
-                                            Project usersLoadedProject = projectDAO.loadProjectUsers(project);
-
-
-                                            Collection<User> users = usersLoadedProject.getUsers();
-
-
-                                            UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
-                                            Iterator iter = users.iterator();
-                                            while (iter.hasNext()) {
-                                                User user = (User) iter.next();
-                                                user.getProjects().remove(usersLoadedProject);
-                                                userDAO.updateUser(user);
-                                            }
-
-
-                                            projectDAO.removeProject(project);
+                                            userDAO.removeUser(user);
                                             Page.getCurrent().reload();
 
                                         } else {
-                                            // User did not confirm
-
                                         }
                                     }
                                 });
-                        */
+
                     }
                 });
 
