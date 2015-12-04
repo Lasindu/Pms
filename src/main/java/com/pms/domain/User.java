@@ -23,6 +23,8 @@ public final class User {
     private String experience;
     private String technicalSkills;
     private String domainSkills;
+    private String isAvailable;
+    private String assignedProjectName;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "user_project", catalog = "pms", joinColumns = {
@@ -134,5 +136,21 @@ public final class User {
 
     public void setDomainSkills(String domainSkills) {
         this.domainSkills = domainSkills;
+    }
+
+    public String getIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(String isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    public String getAssignedProjectName() {
+        return assignedProjectName;
+    }
+
+    public void setAssignedProjectName(String assignedProjectName) {
+        this.assignedProjectName = assignedProjectName;
     }
 }

@@ -14,19 +14,19 @@ public class UserStory {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    private int userStoryId;
-    private String name;
-    private String description;
-    private int priority;
-    private String date;
-    private String preRequisits;
-    private String dependancy;
-    private String domain;
-    private String assignedSprint;
-    private String releasedDate;
-    private String state;
-    private boolean CR;
-    private int sequenceNo;
+    private int userStoryId;//
+    private String name;//
+    private String description;//
+    private int priority;//
+    private String date;//
+    private String preRequisits;//
+    private String dependancy;//
+    private String domain;//
+    private int assignedSprint;
+    private String releasedDate;//
+    private String state;//
+    private boolean CR;//
+    private int sequenceNo;//
 
 
 
@@ -36,6 +36,15 @@ public class UserStory {
 
     @OneToMany(mappedBy="userStory",fetch=FetchType.LAZY,cascade=CascadeType.ALL,orphanRemoval=true)
     private Collection<Task> userStoryTasks= new ArrayList<Task>();
+
+
+
+
+
+
+
+
+
 
     //getters and setters
 
@@ -128,11 +137,11 @@ public class UserStory {
         this.domain = domain;
     }
 
-    public String getAssignedSprint() {
+    public int getAssignedSprint() {
         return assignedSprint;
     }
 
-    public void setAssignedSprint(String assignedSprint) {
+    public void setAssignedSprint(int assignedSprint) {
         this.assignedSprint = assignedSprint;
     }
 

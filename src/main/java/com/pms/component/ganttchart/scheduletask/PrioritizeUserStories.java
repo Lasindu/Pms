@@ -1,4 +1,4 @@
-package com.pms.component.ganttchart;
+package com.pms.component.ganttchart.scheduletask;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -20,9 +20,18 @@ public class PrioritizeUserStories {
     int userStoryCount;
     int sortedUserStoryCount;
     UserStoryDAO userStoryDAO;
+    Project project;
 
-    public Map prioritize(Project project) {
+    //This method return Prioritize UserStoryMap
+    public Map getPrioritizeUserStoryMap(Project project)
+    {
+        prioritize(project);
+        return sortedUserStoryMap;
+    }
 
+    public void prioritize(Project project) {
+
+        this.project = project;
         //final prioritize user story map
         sortedUserStoryMap = new HashMap<Integer, UserStory>();
         sortedUserStoryCount = 0;
@@ -49,7 +58,7 @@ public class PrioritizeUserStories {
         //divide done and not done user stories
         for (UserStory userStory : allUserStories) {
 
-            if (userStory.getState() != null && userStory.getState().equals("done"))
+            if (userStory.getState() != null && (userStory.getState().equals("done") ||  userStory.getState().equals("working")))
                 alreadyDoneUserStories.add(userStory);
             else
                 notDoneUserStories.add(userStory);
@@ -67,7 +76,6 @@ public class PrioritizeUserStories {
                     break;
                 }
             }
-
 
         }
 
@@ -96,21 +104,21 @@ public class PrioritizeUserStories {
 
 
         if (priority1UserStories.size() > 1)
-            userStoriesCheckPreRequisitAndDependency(priority1UserStories);
+            userStoriesCheckPreRequisiteAndDependency(priority1UserStories);
         else if (priority1UserStories.size() == 1) {
             sortedUserStoryCount += 1;
             sortedUserStoryMap.put(sortedUserStoryCount, priority1UserStories.get(0));
         }
 
         if (priority2UserStories.size() > 1)
-            userStoriesCheckPreRequisitAndDependency(priority2UserStories);
+            userStoriesCheckPreRequisiteAndDependency(priority2UserStories);
         else if (priority2UserStories.size() == 1) {
             sortedUserStoryCount += 1;
             sortedUserStoryMap.put(sortedUserStoryCount, priority2UserStories.get(0));
         }
 
         if (priority3UserStories.size() > 1)
-            userStoriesCheckPreRequisitAndDependency(priority3UserStories);
+            userStoriesCheckPreRequisiteAndDependency(priority3UserStories);
         else if (priority3UserStories.size() == 1) {
             sortedUserStoryCount += 1;
             sortedUserStoryMap.put(sortedUserStoryCount, priority3UserStories.get(0));
@@ -119,7 +127,7 @@ public class PrioritizeUserStories {
 
 
         if (priority4UserStories.size() > 1)
-            userStoriesCheckPreRequisitAndDependency(priority4UserStories);
+            userStoriesCheckPreRequisiteAndDependency(priority4UserStories);
         else if (priority4UserStories.size() == 1) {
             sortedUserStoryCount += 1;
             sortedUserStoryMap.put(sortedUserStoryCount, priority4UserStories.get(0));
@@ -127,7 +135,7 @@ public class PrioritizeUserStories {
         }
 
         if (priority5UserStories.size() > 1)
-            userStoriesCheckPreRequisitAndDependency(priority5UserStories);
+            userStoriesCheckPreRequisiteAndDependency(priority5UserStories);
         else if (priority5UserStories.size() == 1) {
             sortedUserStoryCount += 1;
             sortedUserStoryMap.put(sortedUserStoryCount, priority5UserStories.get(0));
@@ -135,58 +143,100 @@ public class PrioritizeUserStories {
         }
 
 
-        return sortedUserStoryMap;
+
+        //this method used to update state initial to working
+        stateUpdate();
+
+
     }
 
 
-    private void userStoriesCheckPreRequisitAndDependency(List<UserStory> userStories) {
 
-        List<UserStory> noPreRequist = new ArrayList<UserStory>();
-        List<UserStory> hasPreRequist = new ArrayList<UserStory>();
+    //check the state of the user story and update state if update is necessary
+    private void stateUpdate() {
+        Iterator it = sortedUserStoryMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            //System.out.println(pair.getKey() + " = " + pair.getValue());
+            //it.remove();
+
+            UserStory userStory=(UserStory)pair.getValue();
+
+            if(userStory.getState().equals("working"))
+            {
+                break;
+            }
+            else if(userStory.getState().equals("initial"))
+            {
+                int doneUserStoryCount = 0;
+                for (UserStory userStory1 :userStoryDAO.getAllUserSeriesOfProject(project)) {
+                    if (userStory1.getState().equals("done"))
+                        doneUserStoryCount++;
+
+                }
+
+                userStory.setAssignedSprint(doneUserStoryCount+1);
+                userStory.setSequenceNo(doneUserStoryCount + 1);
+
+
+                userStory.setState("working");
+                userStoryDAO.updateUserStory(userStory);
+                sortedUserStoryMap.put(pair.getKey(),userStory);
+                break;
+            }
+        }
+
+    }
+
+
+    private void userStoriesCheckPreRequisiteAndDependency(List<UserStory> userStories) {
+
+        List<UserStory> noPreRequisite = new ArrayList<UserStory>();
+        List<UserStory> hasPreRequisite = new ArrayList<UserStory>();
 
         for (UserStory userStory : userStories) {
             if (userStory.getPreRequisits() != null && !userStory.getPreRequisits().isEmpty())
-                hasPreRequist.add(userStory);
+                hasPreRequisite.add(userStory);
 
             else
-                noPreRequist.add(userStory);
+                noPreRequisite.add(userStory);
 
         }
 
 
-        List<UserStory> noPreRequisit_NoDependency = new ArrayList<UserStory>();
-        List<UserStory> noPreRequisit_hasDependency = new ArrayList<UserStory>();
+        List<UserStory> noPreRequisite_NoDependency = new ArrayList<UserStory>();
+        List<UserStory> noPreRequisite_hasDependency = new ArrayList<UserStory>();
 
-        for (UserStory userStory : noPreRequist) {
+        for (UserStory userStory : noPreRequisite) {
             if (userStory.getDependancy() != null && !userStory.getDependancy().isEmpty())
-                noPreRequisit_hasDependency.add(userStory);
+                noPreRequisite_hasDependency.add(userStory);
             else
-                noPreRequisit_NoDependency.add(userStory);
+                noPreRequisite_NoDependency.add(userStory);
 
 
         }
 
 
-        if (noPreRequisit_hasDependency.size() > 1)
-            prioritize_UserStories_HasDependency(noPreRequisit_hasDependency);
-        else if (noPreRequisit_hasDependency.size() == 1) {
+        if (noPreRequisite_hasDependency.size() > 1)
+            prioritize_UserStories_HasDependency(noPreRequisite_hasDependency);
+        else if (noPreRequisite_hasDependency.size() == 1) {
             sortedUserStoryCount += 1;
-            sortedUserStoryMap.put(sortedUserStoryCount, noPreRequisit_hasDependency.get(0));
+            sortedUserStoryMap.put(sortedUserStoryCount, noPreRequisite_hasDependency.get(0));
         }
 
-        if (noPreRequisit_NoDependency.size() > 1)
-            prioritize_UserStories_NoDependency(noPreRequisit_NoDependency);
-        else if (noPreRequisit_NoDependency.size() == 1) {
+        if (noPreRequisite_NoDependency.size() > 1)
+            prioritize_UserStories_NoDependency(noPreRequisite_NoDependency);
+        else if (noPreRequisite_NoDependency.size() == 1) {
             sortedUserStoryCount += 1;
-            sortedUserStoryMap.put(sortedUserStoryCount, noPreRequisit_NoDependency.get(0));
+            sortedUserStoryMap.put(sortedUserStoryCount, noPreRequisite_NoDependency.get(0));
 
         }
 
-        if (hasPreRequist.size() > 1)
-            prioritize_UserStories_HasPreReqisits(hasPreRequist);
-        else if (hasPreRequist.size() == 1) {
+        if (hasPreRequisite.size() > 1)
+            prioritize_UserStories_HasPreRequisite(hasPreRequisite);
+        else if (hasPreRequisite.size() == 1) {
             sortedUserStoryCount += 1;
-            sortedUserStoryMap.put(sortedUserStoryCount, hasPreRequist.get(0));
+            sortedUserStoryMap.put(sortedUserStoryCount, hasPreRequisite.get(0));
 
         }
 
@@ -194,51 +244,44 @@ public class PrioritizeUserStories {
     }
 
 
-    private void prioritize_UserStories_HasPreReqisits(List<UserStory> userStories) {
+    private void prioritize_UserStories_HasPreRequisite(List<UserStory> userStories) {
 
-        List<UserStory> allPrerequisitdAllocatedList = new ArrayList<UserStory>();
-
-        //total userstory count
-
+        List<UserStory> allPreRequisiteAllocatedList = new ArrayList<UserStory>();
         int newSortedCount = sortedUserStoryCount + userStories.size();
-
         int whileLoopCount = 0;
+
 
         while (sortedUserStoryCount != newSortedCount) {
             if (whileLoopCount > userStories.size())
                 break;
 
-
             whileLoopCount += 1;
-
-
             System.out.println("inside has prerequisite while loop allocated user story count" + sortedUserStoryCount);
 
             for (UserStory userStory : userStories) {
 
                 if (checkInSortedList(userStory.getName()))
-                    break;
+                    continue;
 
-                String preRequistNameList = userStory.getPreRequisits();
+                String PreRequisiteNameList = userStory.getPreRequisits();
 
-                if (preRequistNameList != null && !preRequistNameList.isEmpty()) {
-                    String[] preReqistiList = preRequistNameList.split(",");
+                if (PreRequisiteNameList != null && !PreRequisiteNameList.isEmpty()) {
 
+                    String[] PreRequisiteList = PreRequisiteNameList.split(",");
 
-                    boolean allallocated = true;
-                    for (String preRequist : preReqistiList) {
-                        UserStory userStory1 = userStoryDAO.getUserStoryFormProjectNameAndUserStoryName(userStory.getProject().getName(), preRequist);
+                    boolean allAllocated = true;
+                    for (String PreRequisite : PreRequisiteList) {
+                        UserStory userStory1 = userStoryDAO.getUserStoryFormProjectNameAndUserStoryName(userStory.getProject().getName(), PreRequisite);
 
-                        // if(!userStory1.getState().equals("allocated"))
                         if (!checkInSortedList(userStory1.getName())) {
-                            allallocated = false;
+                            allAllocated = false;
                             break;
                         }
 
                     }
 
-                    if (allallocated) {
-                        allPrerequisitdAllocatedList.add(userStory);
+                    if (allAllocated) {
+                        allPreRequisiteAllocatedList.add(userStory);
 
                     }
 
@@ -247,35 +290,35 @@ public class PrioritizeUserStories {
 
             }
 
-            List<UserStory> hasPreRequisit_NoDependency = new ArrayList<UserStory>();
-            List<UserStory> hasPreRequisit_hasDependency = new ArrayList<UserStory>();
-            for (UserStory userStory : allPrerequisitdAllocatedList) {
+            List<UserStory> hasPreRequisite_NoDependency = new ArrayList<UserStory>();
+            List<UserStory> hasPreRequisite_hasDependency = new ArrayList<UserStory>();
+            for (UserStory userStory : allPreRequisiteAllocatedList) {
                 if (userStory.getDependancy() == null || userStory.getDependancy().isEmpty())
-                    hasPreRequisit_NoDependency.add(userStory);
+                    hasPreRequisite_NoDependency.add(userStory);
                 else
-                    hasPreRequisit_hasDependency.add(userStory);
+                    hasPreRequisite_hasDependency.add(userStory);
 
             }
 
 
-            if (hasPreRequisit_hasDependency.size() > 1)
-                prioritize_UserStories_HasDependency(hasPreRequisit_hasDependency);
-            else if (hasPreRequisit_hasDependency.size() == 1) {
+            if (hasPreRequisite_hasDependency.size() > 1)
+                prioritize_UserStories_HasDependency(hasPreRequisite_hasDependency);
+            else if (hasPreRequisite_hasDependency.size() == 1) {
                 sortedUserStoryCount += 1;
-                sortedUserStoryMap.put(sortedUserStoryCount, hasPreRequisit_hasDependency.get(0));
+                sortedUserStoryMap.put(sortedUserStoryCount, hasPreRequisite_hasDependency.get(0));
             }
 
 
-            if (hasPreRequisit_NoDependency.size() > 1)
-                prioritize_UserStories_NoDependency(hasPreRequisit_NoDependency);
-            else if (hasPreRequisit_NoDependency.size() == 1) {
+            if (hasPreRequisite_NoDependency.size() > 1)
+                prioritize_UserStories_NoDependency(hasPreRequisite_NoDependency);
+            else if (hasPreRequisite_NoDependency.size() == 1) {
 
                 sortedUserStoryCount += 1;
-                sortedUserStoryMap.put(sortedUserStoryCount, hasPreRequisit_NoDependency.get(0));
+                sortedUserStoryMap.put(sortedUserStoryCount, hasPreRequisite_NoDependency.get(0));
             }
 
 
-            allPrerequisitdAllocatedList = new ArrayList<UserStory>();
+            allPreRequisiteAllocatedList = new ArrayList<UserStory>();
 
         }
 
@@ -286,22 +329,22 @@ public class PrioritizeUserStories {
         Map noDependency_WithTime = new HashMap<UserStory, Integer>();
 
         for (UserStory userStory : userStories) {
-            int totoalTime = 0;
+            int totalTime = 0;
 
             Collection<Task> userStoryTasks = new ArrayList<Task>();
             userStoryTasks.addAll(userStoryDAO.getUserStoryTaskList(userStory));
 
             if (userStoryTasks.size() > 0)
                 for (Task task : userStoryTasks) {
-                    totoalTime = totoalTime + Integer.parseInt(task.getEstimateTime());
+                    totalTime = totalTime + Integer.parseInt(task.getEstimateTime());
                 }
 
-            noDependency_WithTime.put(userStory, totoalTime);
+            noDependency_WithTime.put(userStory, totalTime);
 
 
         }
 
-        noDependency_WithTime = PrioritizeUserStories.sortUserStoryMapAccendingOrder(noDependency_WithTime);
+        noDependency_WithTime = PrioritizeUserStories.sortUserStoryMapDesendingOrder(noDependency_WithTime);
 
         Iterator it = noDependency_WithTime.entrySet().iterator();
         while (it.hasNext()) {
@@ -324,7 +367,7 @@ public class PrioritizeUserStories {
         Map userStoryWithHighestPriorityCount = new HashMap<UserStory, Integer>();
 
 
-        //find highest prority and number of hights priority of each user story
+        //find highest priority and number heights priority of each user story
         for (UserStory userStory : userStories) {
 
             int dependencyHighestPriority = 0;
@@ -358,7 +401,6 @@ public class PrioritizeUserStories {
             userStoryWithDependencyHighestPriority.put(userStory, dependencyHighestPriority);
             userStoryWithHighestPriorityCount.put(userStory, highestPriorityCount);
 
-
         }
 
 
@@ -366,17 +408,20 @@ public class PrioritizeUserStories {
 
 
 
-        //for each highets prority level
+
+        //for each highers priority level
         for (int x = 1; x <= 5; x++) {
-            //this user temp userstory list contains user stories which contrains same highet dependency prority
+            //this user temp userStory list contains user stories which constrains higher dependency prority
             List<UserStory> tempUserStoryList = new ArrayList<UserStory>();
             Iterator iterator = userStoryWithDependencyHighestPriority.entrySet().iterator();
 
-            if (iterator.hasNext()) {
+            while (iterator.hasNext()) {
                 Map.Entry pair = (Map.Entry) iterator.next();
 
                 if ((Integer) pair.getValue() == x)
                     tempUserStoryList.add((UserStory) pair.getKey());
+
+                //iterator.remove();
             }
 
 
@@ -392,11 +437,11 @@ public class PrioritizeUserStories {
 
                 }
 
-                //sort tempUserStoryWithHighestPriorityCount temp user story count map with desending order then maximum count come first
+                //sort tempUserStoryWithHighestPriorityCount temp user story count map with descending order then maximum count come first
                 tempUserStoryWithHighestPriorityCount = PrioritizeUserStories.sortUserStoryMapDesendingOrder(tempUserStoryWithHighestPriorityCount);
 
 
-                //get same higrest prority count user storyes
+                //get same highest priority count user stories
                 Multimap<Integer, UserStory> multiMap = HashMultimap.create();
 
                 for (Map.Entry<UserStory, Integer> entry : tempUserStoryWithHighestPriorityCount.entrySet()) {
@@ -408,9 +453,7 @@ public class PrioritizeUserStories {
                     //         + entry.getValue());
 
                     Collection<UserStory> userStoryTasks = entry.getValue();
-
                     Map userStory_WithTotalHighestPriorityTaskTime = new HashMap<UserStory, Integer>();
-
 
                     //find total task time in each user story
                     for (UserStory userStory1 : userStoryTasks) {
@@ -423,7 +466,7 @@ public class PrioritizeUserStories {
 
                             for (String dependencyName : dependencies) {
                                 UserStory userStory2 = userStoryDAO.getUserStoryFormProjectNameAndUserStoryName(userStory1.getProject().getName(), dependencyName);
-                                if (userStory2.getPriority() == ((Integer)userStoryWithDependencyHighestPriority.get(userStory1)).intValue()) {
+                                if (userStory2.getPriority() == Integer.parseInt(userStoryWithDependencyHighestPriority.get(userStory1).toString())) {
                                     Collection<Task> userStoryTasks2 = (userStoryDAO.getUserStoryTaskList(userStory2));
 
                                     for (Task task : userStoryTasks2) {
@@ -465,115 +508,14 @@ public class PrioritizeUserStories {
         }
 
 
-
-
-/*
-        //this map contains userstories and their dependecies highest priority one
-        Map withDependencyPriority = new HashMap<UserStory, Integer>();
-
-        for (UserStory userStory : userStories) {
-
-            int dependencyHighestPriority = 0;
-
-            String dependencyNameList = userStory.getDependancy();
-            if (dependencyNameList != null && !dependencyNameList.isEmpty()) {
-                String[] dependencies = userStory.getDependancy().split(",");
-
-                for (String dependencyName : dependencies) {
-                    UserStory userStory1 = userStoryDAO.getUserStoryFormProjectNameAndUserStoryName(userStory.getProject().getName(), dependencyName);
-
-                    if (dependencyHighestPriority == 0)
-                        dependencyHighestPriority = userStory1.getPriority();
-                    else if (userStory1.getPriority() < dependencyHighestPriority)
-                        dependencyHighestPriority = userStory1.getPriority();
-                }
-
-            }
-
-            withDependencyPriority.put(userStory, dependencyHighestPriority);
-        }
-
-        withDependencyPriority = PrioritizeUserStories.sortUserStoryMapAccendingOrder(withDependencyPriority);
-
-
-        int priority = 1;
-        //List<UserStory> UserSotyies_HasSameDependencyPriority = new ArrayList<UserStory>();
-        Iterator it1 = withDependencyPriority.entrySet().iterator();
-
-
-        Map userStory_WithTotalTaskTime = new HashMap<UserStory, Integer>();
-
-        while (it1.hasNext()) {
-            Map.Entry pair = (Map.Entry) it1.next();
-            //System.out.println(pair.getKey() + " = " + pair.getValue());
-            it1.remove(); // avoids a ConcurrentModificationException
-
-            if ((Integer) pair.getValue() == priority) {
-                // UserSotyies_HasSameDependencyPriority.add((UserStory)pair.getKey());
-
-                int totalTaskTime = 0;
-
-
-                Collection<Task> userStoryTasks = userStoryDAO.getUserStoryTaskList(((UserStory) pair.getKey()));
-
-                for (Task task : userStoryTasks) {
-                    totalTaskTime = totalTaskTime + Integer.parseInt(task.getEstimateTime());
-                }
-                userStory_WithTotalTaskTime.put(((UserStory) pair.getKey()), totalTaskTime);
-
-            } else {
-                userStory_WithTotalTaskTime = PrioritizeUserStories.sortUserStoryMapAccendingOrder(userStory_WithTotalTaskTime);
-
-                Iterator it3 = userStory_WithTotalTaskTime.entrySet().iterator();
-                while (it3.hasNext()) {
-                    {
-                        Map.Entry pair1 = (Map.Entry) it3.next();
-                        //System.out.println(pair.getKey() + " = " + pair.getValue());
-                        sortedUserStoryCount += 1;
-                        sortedUserStoryMap.put(sortedUserStoryCount, pair1.getKey());
-                        it3.remove();
-
-                    }
-                }
-
-
-                int totalTaskTime = 0;
-                Collection<Task> userStoryTasks = (userStoryDAO.getUserStoryTaskList((UserStory) pair.getKey()));
-
-                for (Task task : userStoryTasks) {
-                    totalTaskTime = totalTaskTime + Integer.parseInt(task.getEstimateTime());
-                }
-
-                userStory_WithTotalTaskTime = new HashMap<UserStory, Integer>();
-
-                priority = (Integer) pair.getValue();
-                userStory_WithTotalTaskTime.put(((UserStory) pair.getKey()), totalTaskTime);
-
-            }
-
-            if (it1.toString().isEmpty()) {
-                userStory_WithTotalTaskTime = PrioritizeUserStories.sortUserStoryMapAccendingOrder(userStory_WithTotalTaskTime);
-
-                Iterator it3 = userStory_WithTotalTaskTime.entrySet().iterator();
-                while (it3.hasNext()) {
-                    {
-                        Map.Entry pair1 = (Map.Entry) it3.next();
-                        //System.out.println(pair.getKey() + " = " + pair.getValue());
-                        sortedUserStoryCount += 1;
-                        sortedUserStoryMap.put(sortedUserStoryCount, pair1.getKey());
-                        it3.remove();
-
-                    }
-                }
-
-
-            }
-
-
-        }*/
-
-
     }
+
+
+
+
+
+
+
 
 
     private boolean checkInSortedList(String userStoryName) {
@@ -585,6 +527,7 @@ public class PrioritizeUserStories {
     }
 
 
+    //1,2,3,4,5
     private static Map<UserStory, Integer> sortUserStoryMapAccendingOrder(Map<UserStory, Integer> unsortMap) {
 
         // Convert Map to List
@@ -608,7 +551,7 @@ public class PrioritizeUserStories {
         return sortedMap;
     }
 
-
+   // 99,98,97,96
     private static Map<UserStory, Integer> sortUserStoryMapDesendingOrder(Map<UserStory, Integer> unsortMap) {
 
         // Convert Map to List
@@ -619,7 +562,8 @@ public class PrioritizeUserStories {
         Collections.sort(list, new Comparator<Map.Entry<UserStory, Integer>>() {
             public int compare(Map.Entry<UserStory, Integer> o1,
                                Map.Entry<UserStory, Integer> o2) {
-                return (o1.getValue()).compareTo(o2.getValue());
+                //return (o1.getValue()).compareTo(o2.getValue());
+                return (o2.getValue()).compareTo(o1.getValue());
             }
         });
 

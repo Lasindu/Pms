@@ -3,11 +3,11 @@ package com.pms.component;
 import com.pms.DashboardUI;
 import com.pms.dao.ProjectDAO;
 import com.pms.dao.TaskDAO;
+import com.pms.dao.UserDAO;
 import com.pms.dao.UserStoryDAO;
-import com.pms.domain.Project;
-import com.pms.domain.Task;
-import com.pms.domain.UserStory;
+import com.pms.domain.*;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.fieldgroup.PropertyId;
@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,14 +32,12 @@ import java.util.Set;
 public class TaskWindow extends Window {
 
 
-
-
     UserStory userStory;
     private Collection<Task> userStoryTasks;
 
     private final BeanFieldGroup<Task> fieldGroup;
     private Task task;
-    private boolean editmode=false;
+    private boolean editmode = false;
 
     @PropertyId("name")
     private TextField name;
@@ -49,9 +48,12 @@ public class TaskWindow extends Window {
     @PropertyId("severity")
     private ComboBox severity;
     private OptionGroup preRequisitsList;
-    //private ListSelect dependancyList;
     @PropertyId("memberType")
-    private TextField memberType;
+    private ComboBox memberType;
+    @PropertyId("technicalSkill")
+    private Select technicalSkill;
+    @PropertyId("domainSkill")
+    private Select domainSkill;
     @PropertyId("estimateTime")
     private TextField estimateTime;
     @PropertyId("assignedTo")
@@ -60,18 +62,17 @@ public class TaskWindow extends Window {
     private TextField completeTime;
     @PropertyId("isCr")
     private OptionGroup isCr;
+    private OptionGroup dependencyList;
 
 
-    private TaskWindow (Task task)
-    {
-        this.userStory=task.getUserStory();
-        userStoryTasks=userStory.getUserStoryTasks();
-        this.task=task;
+    private TaskWindow(Task task) {
+        this.userStory = task.getUserStory();
+        userStoryTasks = userStory.getUserStoryTasks();
+        this.task = task;
 
 
-        if(!task.getName().equals(""))
-        {
-            editmode=true;
+        if (!task.getName().equals("")) {
+            editmode = true;
         }
 
 
@@ -102,7 +103,6 @@ public class TaskWindow extends Window {
         content.addComponent(buildFooter());
 
 
-
         fieldGroup = new BeanFieldGroup<Task>(Task.class);
         fieldGroup.bindMemberFields(this);
         fieldGroup.setItemDataSource(task);
@@ -111,11 +111,9 @@ public class TaskWindow extends Window {
     }
 
 
+    private Component buildTask() {
 
-    private Component buildTask()
-    {
-
-        FormLayout taskForm = new FormLayout();
+        final FormLayout taskForm = new FormLayout();
         taskForm.addStyleName(ValoTheme.FORMLAYOUT_LIGHT);
         taskForm.setCaption("Task");
         taskForm.setMargin(new MarginInfo(true, true, true, true));
@@ -123,11 +121,8 @@ public class TaskWindow extends Window {
 
         name = new TextField("Task Name");
         name.setNullRepresentation("");
+        name.setRequired(true);
         taskForm.addComponent(name);
-
-        description = new TextArea("Task Description");
-        description.setNullRepresentation("");
-        taskForm.addComponent(description);
 
         priority = new ComboBox("Priority");
         priority.addItem(1);
@@ -135,7 +130,17 @@ public class TaskWindow extends Window {
         priority.addItem(3);
         priority.addItem(4);
         priority.addItem(5);
+        priority.setRequired(true);
         taskForm.addComponent(priority);
+
+        estimateTime = new TextField("Estimate Time (Hours)");
+        estimateTime.setNullRepresentation("");
+        estimateTime.setRequired(true);
+        taskForm.addComponent(estimateTime);
+
+        completeTime = new TextField("Complete Time");
+        completeTime.setNullRepresentation("");
+        taskForm.addComponent(completeTime);
 
         severity = new ComboBox("Severity");
         severity.addItem(1);
@@ -144,8 +149,6 @@ public class TaskWindow extends Window {
         severity.addItem(4);
         severity.addItem(5);
         taskForm.addComponent(severity);
-
-
 
         preRequisitsList = new OptionGroup("Pre Requisits");
         preRequisitsList.setWidth("400px");
@@ -157,21 +160,21 @@ public class TaskWindow extends Window {
         }
         preRequisitsList.setMultiSelect(true);
 
-
         Panel preRequestPanel = new Panel("");
         preRequestPanel.setHeight("100px");
         preRequestPanel.setContent(preRequisitsList);
-        VerticalLayout preRequistLayout= new VerticalLayout();
+        VerticalLayout preRequistLayout = new VerticalLayout();
         preRequistLayout.setCaption("Pre Requisits");
         preRequistLayout.addComponent(preRequestPanel);
         taskForm.addComponent(preRequistLayout);
 
-        if(editmode)
-        {
-            String[] preRquisitList= task.getPreRequisits().split(",");
+        if (editmode) {
 
-            for(String preRequistit:preRquisitList)
-            {
+            preRequisitsList.removeItem(task.getName());
+
+            String[] preRquisitList = task.getPreRequisits().split(",");
+
+            for (String preRequistit : preRquisitList) {
                 preRequisitsList.select(preRequistit);
             }
 
@@ -180,31 +183,128 @@ public class TaskWindow extends Window {
         }
 
 
+        description = new TextArea("Task Description");
+        description.setNullRepresentation("");
+        taskForm.addComponent(description);
 
-        memberType= new TextField("Member Type");
-        memberType.setNullRepresentation("");
+
+
+        memberType = new ComboBox("Member Type");
+        memberType.addItem("Dev");
+        memberType.addItem("QA");
+        memberType.addItem("System Engineer");
+        memberType.setRequired(true);
         taskForm.addComponent(memberType);
-
-        estimateTime= new TextField("Estimate Time");
-        estimateTime.setNullRepresentation("");
-        taskForm.addComponent(estimateTime);
 
         assignedTo = new TextField("Assinged to");
         assignedTo.setNullRepresentation("");
         taskForm.addComponent(assignedTo);
 
-        completeTime= new TextField("Complete Time");
-        completeTime.setNullRepresentation("");
-        taskForm.addComponent(completeTime);
 
-        isCr = new OptionGroup("Is Cr");
+        //multipe imputs
+        UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+
+        technicalSkill = new Select("Select Technical Skill");
+        List<TechnicalSkill> techSkill = userDAO.loadTechSkills();
+        for(int i=0;i<techSkill.size();i++){
+            technicalSkill.addItem(techSkill.get(i).getTechName());
+        }
+        taskForm.addComponent(technicalSkill);
+
+        domainSkill = new Select("Select Domain Skill");
+        List<DomainSkill> domSkill = userDAO.loadDomSkills();
+        for(int i=0;i<domSkill.size();i++){
+            domainSkill.addItem(domSkill.get(i).getDomName());
+        }
+        taskForm.addComponent(domainSkill);
+
+
+        isCr = new OptionGroup("Change Request");
         isCr.addItem(Boolean.TRUE);
         isCr.addItem(Boolean.FALSE);
+        if(!editmode)
+        isCr.setValue(Boolean.FALSE);
+        else
+        {
+            if(task.isCr())
+                isCr.setValue(Boolean.TRUE);
+            else
+                isCr.setValue(Boolean.FALSE);
+        }
         isCr.addStyleName("horizontal");
         taskForm.addComponent(isCr);
 
 
-        return  taskForm;
+
+        dependencyList = new OptionGroup("Dependency");
+        dependencyList.setWidth("400px");
+        dependencyList.setNullSelectionAllowed(true);
+        for (Task task1 : userStoryTasks) {
+
+            dependencyList.addItem(task1.getName());
+
+        }
+        dependencyList.setMultiSelect(true);
+
+        Panel dependencyPanel = new Panel("");
+        dependencyPanel.setHeight("100px");
+        dependencyPanel.setContent(dependencyList);
+        final VerticalLayout dependencyLayout = new VerticalLayout();
+        dependencyLayout.setCaption("Dependency");
+        dependencyLayout.addComponent(dependencyPanel);
+        taskForm.addComponent(dependencyLayout);
+
+        dependencyLayout.setVisible(false);
+
+        if (editmode) {
+
+            if(task.isCr())
+                dependencyLayout.setVisible(true);
+
+            dependencyList.removeItem(task.getName());
+
+            if( task.getDependancy() != null && ! task.getDependancy().isEmpty())
+            {
+                String[] dependencyList1 = task.getDependancy().split(",");
+
+                for (String dependency : dependencyList1) {
+                    dependencyList.select(dependency);
+                }
+
+            }
+
+
+            //task1.setReadOnly(true);
+
+        }
+
+
+
+
+        isCr.addListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+
+                if(isCr.getValue().toString().equals("true"))
+                {
+                    dependencyLayout.setVisible(true);
+
+                }
+                else
+                {
+                    dependencyLayout.setVisible(false);
+
+                }
+
+                }
+            });
+
+
+
+
+
+
+        return taskForm;
     }
 
     private Component buildFooter() {
@@ -217,17 +317,15 @@ public class TaskWindow extends Window {
         Button cancelButton = new Button("Cancel");
 
         cancelButton.addClickListener(new Button.ClickListener() {
-            public void buttonClick(Button.ClickEvent event) {close();
+            public void buttonClick(Button.ClickEvent event) {
+                close();
             }
         });
 
         Button submitButton;
-        if (editmode)
-        {
+        if (editmode) {
             submitButton = new Button("Update Task");
-        }
-        else
-        {
+        } else {
             submitButton = new Button("Create New Task");
 
         }
@@ -239,23 +337,135 @@ public class TaskWindow extends Window {
 
 
                     fieldGroup.commit();
-                    Task task;
-                    task= fieldGroup.getItemDataSource().getBean();
-                    task.setUserStory(userStory);
+                    Task newTask;
+                    newTask = fieldGroup.getItemDataSource().getBean();
+                    newTask.setUserStory(userStory);
 
-                    if (editmode)
-                    {
+                    if(isCr.getValue().toString().equals("true"))
+                        newTask.setCr(true);
 
-                    }
-                    else
-                    {
+
+
+                    if (editmode) {
+                        TaskDAO taskDAO = (TaskDAO) DashboardUI.context.getBean("Task");
+                        String[] preRequistListBeforEdit = task.getPreRequisits().split(",");
+
+                        for (String preReqsuist : preRequistListBeforEdit) {
+                            if (!preRequisitsList.isSelected(preReqsuist)) {
+                                for (Task task1 : userStoryTasks) {
+                                    if (task1.getName().equals(preReqsuist)) {
+                                        task1.setDependancy(task1.getDependancy().replace(task.getName(), ""));
+
+
+                                        if (task1.getDependancy() != null && !task1.getDependancy().isEmpty()) {
+                                            if (task1.getDependancy().startsWith(",")) {
+                                                task1.setDependancy(task1.getDependancy().substring(1, task1.getDependancy().length()));
+                                            } else if (task1.getDependancy().contains(",,")) {
+                                                task1.setDependancy(task1.getDependancy().replace(",,", ","));
+                                            } else if (task1.getDependancy().endsWith(",")) {
+                                                task1.setDependancy(task1.getDependancy().substring(0, task1.getDependancy().length() - 1));
+                                            }
+
+                                            if (task1.getDependancy().isEmpty()) {
+                                                task1.setDependancy(null);
+                                            }
+
+
+                                        }
+
+                                        taskDAO.updateTask(task1);
+                                        break;
+                                    }
+                                }
+
+
+                            }
+                        }
+
+
+
+                        //handle if old task is cr
+                        if(task.isCr())
+                        {
+                            String[] dependencyBeforeEdit = task.getDependancy().split(",");
+                            for (String dependency : dependencyBeforeEdit) {
+                                if (!preRequisitsList.isSelected(dependency)) {
+                                    for (Task task1 : userStoryTasks) {
+                                        if (task1.getName().equals(dependency)) {
+                                            task1.setPreRequisits(task1.getPreRequisits().replace(task.getName(), ""));
+
+
+                                            if (task1.getPreRequisits() != null && !task1.getPreRequisits().isEmpty()) {
+                                                if (task1.getPreRequisits().startsWith(",")) {
+                                                    task1.setPreRequisits(task1.getPreRequisits().substring(1, task1.getPreRequisits().length()));
+                                                } else if (task1.getPreRequisits().contains(",,")) {
+                                                    task1.setPreRequisits(task1.getPreRequisits().replace(",,", ","));
+                                                } else if (task1.getPreRequisits().endsWith(",")) {
+                                                    task1.setPreRequisits(task1.getPreRequisits().substring(0, task1.getPreRequisits().length() - 1));
+                                                }
+
+                                                if (task1.getPreRequisits().isEmpty()) {
+                                                    task1.setPreRequisits(null);
+                                                }
+
+
+                                            }
+
+
+                                            taskDAO.updateTask(task1);
+                                            break;
+                                        }
+                                    }
+
+
+                                }
+                            }
+
+
+                        }
+
+
+
+
+
+                    } else {
                         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                         Date date = new Date();
-                        task.setDate(dateFormat.format(date).toString());
+                        newTask.setDate(dateFormat.format(date).toString());
+
+                        newTask.setState("initial");
 
                     }
 
                     TaskDAO taskDAO = (TaskDAO) DashboardUI.context.getBean("Task");
+
+
+
+
+                    //Check New UserStory Priority with Prerequisite Priority
+                    int taskPriority =Integer.parseInt(priority.getValue().toString());
+
+                    Set<Item> preRequisitsValues1 = (Set<Item>) preRequisitsList.getValue();
+
+                    for (Object v : preRequisitsValues1) {
+
+                        String preRequistName = v.toString();
+                        Task task1 = taskDAO.getTaskFromUserStroyNameAndTaskName(userStory.getName(), preRequistName);
+
+                        if(taskPriority < task1.getPriority())
+                        {
+                            Notification notification = new Notification("Your Selected Priority is Incorrect ",
+                                    "<br/>You have Prerequisit that has low prority than this Task",
+                                    Notification.Type.ERROR_MESSAGE,true);
+
+                            notification.show(Page.getCurrent());
+                            return;
+
+                        }
+
+
+                    }
+
 
                     //set prereuist for tasks
                     StringBuilder preRequisitString = new StringBuilder();
@@ -264,26 +474,30 @@ public class TaskWindow extends Window {
                     int index2 = 1;
                     for (Object v : preRequisitsValues) {
 
-                        preRequisitString.append(v.toString());
-                        if (index2 != size2)
+                        if (index2 != 1 && !v.toString().isEmpty())
                             preRequisitString.append(",");
+                        preRequisitString.append(v.toString());
+
                         index2++;
 
-                        //following section manually set dependency in other user stories if this user story depend on them
-                        for (Task task1 : userStory.getUserStoryTasks()) {
-                            if(task1.getName().equals(v.toString()))
-                            {
-                                if(task1.getDependancy()==null || task1.getDependancy().isEmpty())
-                                {
-                                    task1.setDependancy(task.getName());
-                                }
-                                else
-                                {
-                                    StringBuilder dependencyString1 = new StringBuilder();
-                                    dependencyString1.append(task1.getDependancy());
-                                    dependencyString1.append(','+task.getName());
 
-                                    task1.setDependancy(dependencyString1.toString());
+                        //following section manually set dependency in other user stories if this task depend on them
+                        for (Task task1 : userStory.getUserStoryTasks()) {
+                            if (task1.getName().equals(v.toString())) {
+                                if (task1.getDependancy() == null || task1.getDependancy().isEmpty()) {
+                                    task1.setDependancy(newTask.getName());
+                                } else {
+
+                                    if(!task1.getDependancy().contains(newTask.getName()))
+                                    {
+                                        StringBuilder dependencyString1 = new StringBuilder();
+                                        dependencyString1.append(task1.getDependancy());
+                                        dependencyString1.append(',' + newTask.getName());
+
+                                        task1.setDependancy(dependencyString1.toString());
+
+                                    }
+
 
                                 }
 
@@ -294,23 +508,78 @@ public class TaskWindow extends Window {
                         }
 
 
+                    }
+                    newTask.setPreRequisits(preRequisitString.toString());
 
 
+
+
+
+
+
+                    //handle cr dependency
+
+                    if(isCr.getValue().toString().equals("true"))
+                    {
+                        StringBuilder dependencyString = new StringBuilder();
+                        Set<Item> dependencyValues = (Set<Item>) dependencyList.getValue();
+                        int size = dependencyList.size();
+                        int index = 1;
+                        for(Object v : dependencyValues)
+                        {
+                            if (index != 1 && !v.toString().isEmpty())
+                                dependencyString.append(",");
+                            dependencyString.append(v.toString());
+
+                            index++;
+
+
+                            for (Task task1 : userStory.getUserStoryTasks()) {
+                                if (task1.getName().equals(v.toString())) {
+                                    if (task1.getPreRequisits() == null || task1.getPreRequisits().isEmpty()) {
+                                        task1.setPreRequisits(newTask.getName());
+                                    } else {
+
+                                        if(!task1.getPreRequisits().contains( newTask.getName()))
+                                        {
+                                            StringBuilder preReqisitStirng1 = new StringBuilder();
+                                            preReqisitStirng1.append(task1.getPreRequisits());
+                                            preReqisitStirng1.append(',' + newTask.getName());
+
+                                            task1.setDependancy(preReqisitStirng1.toString());
+                                        }
+
+
+                                    }
+
+                                    taskDAO.updateTask(task1);
+
+
+                                }
+                            }
+
+
+                        }
+
+                        newTask.setDependancy(dependencyString.toString());
 
                     }
-                    task.setPreRequisits(preRequisitString.toString());
 
 
 
 
-                    UserStoryDAO userStoryDAO= (UserStoryDAO)DashboardUI.context.getBean("UserStory");
-                    userStory.getUserStoryTasks().add(task);
+
+
+
+
+
+
+                    UserStoryDAO userStoryDAO = (UserStoryDAO) DashboardUI.context.getBean("UserStory");
+                    userStory.getUserStoryTasks().add(newTask);
                     userStoryDAO.updateUserStory(userStory);
 
 
-
-                    if (editmode)
-                    {
+                    if (editmode) {
                         Notification success = new Notification(
                                 "Task Updated successfully");
                         success.setDelayMsec(2000);
@@ -318,9 +587,7 @@ public class TaskWindow extends Window {
                         success.setPosition(Position.BOTTOM_CENTER);
                         success.show(Page.getCurrent());
 
-                    }
-                    else
-                    {
+                    } else {
                         Notification success = new Notification(
                                 "Task Created successfully");
                         success.setDelayMsec(2000);
@@ -335,7 +602,7 @@ public class TaskWindow extends Window {
 
 
                 } catch (FieldGroup.CommitException e) {
-                    Notification.show("Error while creating User Story",
+                    Notification.show("Error while creating Task please check required fields",
                             Notification.Type.ERROR_MESSAGE);
                 }
             }
@@ -345,7 +612,7 @@ public class TaskWindow extends Window {
         footer.addComponent(submitButton);
         footer.addComponent(cancelButton);
 
-        footer.setExpandRatio(cancelButton,1);
+        footer.setExpandRatio(cancelButton, 1);
 
         footer.setComponentAlignment(cancelButton, Alignment.TOP_RIGHT);
         footer.setComponentAlignment(submitButton, Alignment.TOP_RIGHT);
@@ -353,6 +620,7 @@ public class TaskWindow extends Window {
 
         return footer;
     }
+
 
     public static void open(Task task) {
         Window w = new TaskWindow(task);

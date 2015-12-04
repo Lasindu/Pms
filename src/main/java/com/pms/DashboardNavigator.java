@@ -17,7 +17,7 @@ import org.vaadin.googleanalytics.tracking.GoogleAnalyticsTracker;
 public class DashboardNavigator extends Navigator {
 
     // Provide a Google Analytics tracker id here
-    private static final String TRACKER_ID = null;// "UA-658457-6";change for test branch
+    private static final String TRACKER_ID = null;// "UA-658457-6";
     private GoogleAnalyticsTracker tracker;
 
     private static final DashboardViewType ERROR_VIEW = DashboardViewType.DASHBOARD;

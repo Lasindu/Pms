@@ -28,7 +28,7 @@ public enum DashboardViewType {
         this.viewName = viewName;
         this.viewClass = viewClass;
         this.icon = icon;
-        this.stateful = stateful;//j
+        this.stateful = stateful;
     }
 
     public boolean isStateful() {

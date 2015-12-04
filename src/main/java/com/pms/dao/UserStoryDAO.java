@@ -39,6 +39,41 @@ public class UserStoryDAO {
 
     }
 
+    public Collection<Task> getUserStoryTaskListWithoutCRTasks(UserStory userStory) {
+
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task as task  where task.isCr=false and task.userStory.userStoryId ='" + userStory.getUserStoryId() + "'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> taskCollection = ((org.hibernate.Query) query).list();
+        session.close();
+
+        return taskCollection;
+    }
+
+    public Collection<Task> getUserStoryAssignedTaskList(UserStory userStory) {
+
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task as task  where task.assignedTo != null and task.userStory.userStoryId ='" + userStory.getUserStoryId() + "'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> taskCollection = ((org.hibernate.Query) query).list();
+        session.close();
+
+        return taskCollection;
+    }
+
+
+    public Collection<UserStory> getCRUserStoryList(Project project) {
+
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from UserStory as userStory  where userStory.CR=true ";
+        Query query = session.createQuery(HQL_QUERY);
+        List<UserStory> crUserStoryCollection = ((org.hibernate.Query) query).list();
+        session.close();
+
+        return crUserStoryCollection;
+    }
+
+
     public UserStory getUserStoryFormProjectNameAndUserStoryName(String projectName,String userStoryName)
     {
         Session session = getSessionFactory().openSession();
@@ -111,6 +146,30 @@ public class UserStoryDAO {
         if(x>0)
             return project1.getProjectUserStories();
         else
+        return null;
+    }
+
+    public UserStory getCurrentWorkingUserStory(Project project)
+    {
+        Session session = getSessionFactory().openSession();
+        session.beginTransaction();
+        Project project1=(Project)session.get(Project.class,project.getProjectId());
+        int x= project1.getProjectUserStories().size();
+        session.getTransaction().commit();
+        session.close();
+
+        if(x>0)
+        {
+            Collection<UserStory> userStories = project1.getProjectUserStories();
+            for(UserStory userStory:userStories)
+            {
+                if(userStory.getState().equals("working"))
+                    return userStory;
+            }
+
+        }
+
+
         return null;
     }
 

@@ -2,9 +2,9 @@ package com.pms.component.member;
 
 import com.pms.DashboardUI;
 import com.pms.dao.ProjectDAO;
+import com.pms.dao.QualityDAO;
 import com.pms.dao.UserDAO;
-import com.pms.domain.Project;
-import com.pms.domain.User;
+import com.pms.domain.*;
 import com.sun.java.swing.plaf.windows.resources.windows;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -24,6 +24,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by lasindu on 7/15/2015.
@@ -62,6 +63,8 @@ public class MemberWindow extends Window {
     private Select technicalSkill;
     @PropertyId("domainSkills")
     private Select domainSkill;
+    @PropertyId("assignedProjectName")
+    private Select projectList;
 
 
     private MemberWindow(User user)
@@ -161,6 +164,7 @@ public class MemberWindow extends Window {
         content.addComponent(gender);
 
         role = new Select("Select Role");
+        role.addItem("admin");
         role.addItem("project manager");
         role.addItem("team leader");
         role.addItem("software engineer");
@@ -171,20 +175,29 @@ public class MemberWindow extends Window {
         experience.setNullRepresentation("");
         content.addComponent(experience);
 
+        UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+        ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
+
         technicalSkill = new Select("Select Technical Skill");
-        technicalSkill.addItem("Java");
-        technicalSkill.addItem("C# .NET");
-        technicalSkill.addItem("VB .NET");
-        technicalSkill.addItem("PHP");
+        List<TechnicalSkill> techSkill = userDAO.loadTechSkills();
+        for(int i=0;i<techSkill.size();i++){
+            technicalSkill.addItem(techSkill.get(i).getTechName());
+        }
         content.addComponent(technicalSkill);
 
         domainSkill = new Select("Select Domain Skill");
-        domainSkill.addItem("Patient");
-        domainSkill.addItem("Car Administration");
-        domainSkill.addItem("Medication");
-        domainSkill.addItem("Birth");
-        domainSkill.addItem("RTT");
+        List<DomainSkill> domSkill = userDAO.loadDomSkills();
+        for(int i=0;i<domSkill.size();i++){
+            domainSkill.addItem(domSkill.get(i).getDomName());
+        }
         content.addComponent(domainSkill);
+
+        projectList = new Select("Assign to project");
+        List<Project> projects = projectDAO.getAllProjects();
+        for(int i=0;i<projects.size();i++){
+            projectList.addItem(projects.get(i).getName());
+        }
+        content.addComponent(projectList);
 
         return content;
 
@@ -240,7 +253,12 @@ public class MemberWindow extends Window {
                     else
                     {
                         UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+
                         userDAO.setUser(user);
+
+                        Quality quality = new Quality();
+                        quality.setUserName(user.getUserName());
+                        userDAO.setQuality(quality);
 
                         Notification success = new Notification(
                                 "Member Created successfully");

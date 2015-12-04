@@ -45,7 +45,7 @@ public class ViewTask extends CustomComponent {
         header.setSpacing(true);
         Responsive.makeResponsive(header);
 
-        Label title = new Label(task.getUserStory().getProject().getName()+" - "+task.getUserStory().getName()+" - "+task.getTaskId());
+        Label title = new Label(task.getUserStory().getProject().getName()+" - "+task.getUserStory().getName()+" - TaskId:"+task.getTaskId());
         title.setSizeUndefined();
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -66,6 +66,10 @@ public class ViewTask extends CustomComponent {
             viewTaskLayout.addComponent(priority);
             Label severity= new Label("Severity : "+task.getSeverity());
             viewTaskLayout.addComponent(severity);
+            Label preRequists = new Label("Pre Requisits : "+task.getPreRequisits());
+            viewTaskLayout.addComponent(preRequists);
+            Label dependencies = new Label("Dependencies : "+task.getDependancy());
+            viewTaskLayout.addComponent(dependencies);
             Label memberType = new Label("Member Type : "+task.getMemberType());
             viewTaskLayout.addComponent(memberType);
             Label estimateTime = new Label("Estimate Time "+task.getEstimateTime());
@@ -74,8 +78,10 @@ public class ViewTask extends CustomComponent {
             viewTaskLayout.addComponent(assingedTo);
             Label completeTime = new Label("Complite Time : " +task.getCompleteTime());
             viewTaskLayout.addComponent(completeTime);
-            Label isCr= new Label("Is Cr :"+task.isCr());
+            Label isCr= new Label("Changed Request :"+task.isCr());
             viewTaskLayout.addComponent(isCr);
+            Label state= new Label("Task State:"+task.getState());
+            viewTaskLayout.addComponent(state);
 
 
 

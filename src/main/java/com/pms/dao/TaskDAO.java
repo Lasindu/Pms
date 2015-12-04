@@ -1,5 +1,6 @@
 package com.pms.dao;
 
+import com.pms.component.member.taskganntchart.TaskTime;
 import com.pms.domain.Project;
 import com.pms.domain.Task;
 import com.pms.domain.UserStory;
@@ -7,8 +8,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Upulie on 6/2/2015.
@@ -17,15 +17,27 @@ public class TaskDAO {
 
     private SessionFactory sessionFactory;
 
-
-
     public Task getTaskByTaskId(int id)
     {
         Session session = getSessionFactory().openSession();
-        String HQL_QUERY = "from Task as task  where task.id=id ";
+        String HQL_QUERY = "from Task as task  where task.id=" + id  ;
         Query query = session.createQuery(HQL_QUERY);
         List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
+        if(list.size()>0)
+        {
+            return list.get(0);
+        }
+        return null;
 
+    }
+    public Task getTaskEstimateTimeByTaskName(String tName)
+    {
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task as task  where task.name='"+tName+"'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
         if(list.size()>0)
         {
             return list.get(0);
@@ -43,6 +55,20 @@ public class TaskDAO {
         session.close();
 
     }
+    public List<Task> getMyTaskList(String mName)
+    {
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task as task  where task.assignedTo='"+mName+"'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
+        if(list.size()>0)
+        {
+            return list;
+        }
+        return null;
+
+    }
     public List<Task> getAllTasks()
     {
         Session session = getSessionFactory().openSession();
@@ -50,10 +76,74 @@ public class TaskDAO {
         Query query = session.createQuery(HQL_QUERY);
         List<Task> list = ((org.hibernate.Query) query).list();
         session.close();
-
         return list;
     }
+    public List<Task> getAllTasksForUSerStory(UserStory us)
+    {
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task as task where task.userStory = '"+us.getUserStoryId()+"'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
+        return list;
+    }
+    public List<Task> getAllAssignedTasks()
+    {
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task where isAssigned ='1'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
+        return list;
+    }
+    public boolean getAvailableUser(String userName){
 
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task as task  where task.assignedTo='"+userName+"'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
+        if(list.size()>0)
+        {
+            return true;
+        }
+        return false;
+    }
+    public List<TaskTime> getFreeUser(String userName){
+
+        List<TaskTime> tTList = new ArrayList<TaskTime>();
+
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task as task  where task.assignedTo='"+userName+"'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
+
+        if(list.size()>0)
+        {
+            for(int j=0;j<list.size();j++)
+            {
+                TaskTime tt = new TaskTime();
+                int estiTime = Integer.parseInt(list.get(j).getEstimateTime());
+                int starTime = Integer.parseInt(list.get(j).getStartTime());
+                tt.setEndTime(starTime+estiTime);
+                tt.setStartTime(starTime);
+                tTList.add(tt);
+            }
+
+        }
+        return tTList;
+    }
+
+    public List<Task> getMyTasks(String userName)
+    {
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from Task";// as tast  where tast.name='" + userName + "'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
+        return list;
+    }
     public void updateTask(Task task)
     {
         Session session = getSessionFactory().openSession();

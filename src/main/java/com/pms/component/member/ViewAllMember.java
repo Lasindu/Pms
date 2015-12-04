@@ -66,10 +66,8 @@ public class ViewAllMember {
         viewMemberTable.addContainerProperty("Index", Integer.class, null);
         viewMemberTable.addContainerProperty("Username",  String.class, null);
         viewMemberTable.addContainerProperty("Email", String.class, null);
-        viewMemberTable.addContainerProperty("First name", String.class, null);
-        viewMemberTable.addContainerProperty("Last Name", String.class, null);
-        viewMemberTable.addContainerProperty("Location", String.class, null);
-        viewMemberTable.addContainerProperty("Phone Number", String.class, null);
+        viewMemberTable.addContainerProperty("Name", String.class, null);
+        viewMemberTable.addContainerProperty("Project", String.class, null);
         viewMemberTable.addContainerProperty("Role", String.class, null);
 
         if(userRole.equals("admin")||userRole.equals("pm"))
@@ -103,7 +101,7 @@ public class ViewAllMember {
                 editProjectButton.setData(memberList.get(x));
                 viewMemberButton.setData(memberList.get(x).getUserName());
 
-                viewMemberTable.addItem(new Object[] {index,memberList.get(x).getUserName(),memberList.get(x).getEmail(),memberList.get(x).getFirstName(),memberList.get(x).getLastName(),memberList.get(x).getExperience(),memberList.get(x).getContact(),memberList.get(x).getRole(),removeProjectButton,editProjectButton,viewMemberButton},index);
+                viewMemberTable.addItem(new Object[] {index,memberList.get(x).getUserName(),memberList.get(x).getEmail(),memberList.get(x).getFirstName()+" "+memberList.get(x).getLastName(),memberList.get(x).getAssignedProjectName(),memberList.get(x).getRole(),removeProjectButton,editProjectButton,viewMemberButton},index);
 
                 removeProjectButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
@@ -176,7 +174,6 @@ public class ViewAllMember {
 
                 Button viewProjectButton = new Button("View Project");
                 viewProjectButton.setData(memberList.get(x).getUserName());
-
 
                 viewProjectButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
@@ -267,7 +264,7 @@ public class ViewAllMember {
 
                         return filterByProperty("Index", item,
                                 event.getText())
-                                || filterByProperty("Name", item,
+                                || filterByProperty("Username", item,
                                 event.getText());
 
                     }
@@ -275,7 +272,7 @@ public class ViewAllMember {
                     @Override
                     public boolean appliesToProperty(final Object propertyId) {
                         if (propertyId.equals("Index")
-                                || propertyId.equals("Name")) {
+                                || propertyId.equals("Username")) {
                             return true;
                         }
                         return false;

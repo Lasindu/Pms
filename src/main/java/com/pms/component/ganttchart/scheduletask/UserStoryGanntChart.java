@@ -13,27 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pms.component.ganttchart;
+package com.pms.component.ganttchart.scheduletask;
 
 import com.pms.DashboardUI;
+import com.pms.component.ganttchart.GanttListener;
 import com.pms.dao.UserStoryDAO;
 import com.pms.domain.Project;
-import com.pms.domain.Task;
-import com.pms.domain.User;
 import com.pms.domain.UserStory;
-import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.Title;
-import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.fieldgroup.FieldGroup;
-import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
-import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.converter.DateToLongConverter;
 import com.vaadin.server.ClientConnector;
 import com.vaadin.server.Sizeable;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
@@ -46,18 +36,18 @@ import org.tltv.gantt.Gantt.MoveEvent;
 import org.tltv.gantt.Gantt.ResizeEvent;
 import org.tltv.gantt.client.shared.AbstractStep;
 import org.tltv.gantt.client.shared.Step;
-import org.tltv.gantt.client.shared.SubStep;
 import com.pms.component.ganttchart.util.UriFragmentWrapperFactory;
 import com.pms.component.ganttchart.util.Util;
 
-import javax.servlet.annotation.WebServlet;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Calendar;
 
-public class GanttChart  {
+public class UserStoryGanntChart  {
 
     private Gantt gantt;
+
+    private Project project;
 
     private NativeSelect localeSelect;
     private NativeSelect reso;
@@ -148,6 +138,9 @@ public class GanttChart  {
 
 
     public Component init(Project project) {
+
+        this.project = project;
+
         ganttListener = null;
         createGantt(project);
 
@@ -163,6 +156,8 @@ public class GanttChart  {
             ganttListener = (GanttListener) wrapper;
         }
 
+
+
         final VerticalLayout layout = new VerticalLayout();
         layout.setStyleName("demoContentLayout");
         layout.setSizeFull();
@@ -170,6 +165,9 @@ public class GanttChart  {
         layout.addComponent(controls);
         layout.addComponent(wrapper);
         layout.setExpandRatio(wrapper, 1);
+
+
+        controls.setVisible(false);
 
         return  layout;
     }
@@ -183,92 +181,104 @@ public class GanttChart  {
         gantt.setResizableSteps(true);
         gantt.setMovableSteps(true);
         gantt.addAttachListener(ganttAttachListener);
+
+
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
+
+        Date date = new Date();
+        date.setYear(2015);
+        date.setMonth(1);
+        date.setDate(1);
+
+
+       // date.setTime(0);
+
+        cal.setTime(date);
+        cal.set(Calendar.HOUR,0);
         gantt.setStartDate(cal.getTime());
-        cal.add(Calendar.YEAR, 1);
+        cal.add(Calendar.DATE, 25);
         gantt.setEndDate(cal.getTime());
-        cal.setTime(new Date());
+        cal.setTime(date);
 
 
 
-        Step step1 = new Step("First step");
-        step1.setDescription("Description tooltip");
-        step1.setStartDate(cal.getTime().getTime());
-        cal.add(Calendar.MONTH, 2);
-        step1.setEndDate(cal.getTime().getTime());
-
-        Step step2 = new Step("Second step");
-        step2.setDescription("Description tooltip for second step");
-        cal.add(Calendar.DATE, 1);
-        step2.setStartDate(cal.getTime().getTime());
-        cal.add(Calendar.MONTH, 4);
-        step2.setEndDate(cal.getTime().getTime());
-        step2.setPredecessor(step1);
-
-        Step step3 = new Step("Third step");
-        step3.setDescription("<b>HTML</b> <i>content</i> is <u>supported</u> in tooltips.");
-        cal.add(Calendar.DATE, 1);
-        step3.setStartDate(cal.getTime().getTime());
-        cal.add(Calendar.MONTH, 12);
-        step3.setEndDate(cal.getTime().getTime());
-        step3.setPredecessor(step2);
-
-        Step step4 = new Step("Fourth step");
-        step4.setDescription("Tooltip is <b>VTooltip</b>. <p>Looks same for all Vaadin components.");
-        step4.setStartDate(step2.getStartDate());
-        step4.setEndDate(step2.getEndDate());
-        step4.setPredecessor(step1);
-
-        Step stepWithSubSteps = new Step("Step with sub-steps");
-        stepWithSubSteps.setDescription("Tooltip for Step with sub-steps");
-
-        cal.setTime(new Date(step1.getStartDate()));
-        cal.add(Calendar.DATE, 7);
-
-        SubStep subStep1 = new SubStep("Sub-step A");
-        subStep1.setDescription("Tooltip for Sub-step A");
-        subStep1.setBackgroundColor("A8D9DD");
-        subStep1.setStartDate(step1.getStartDate());
-        subStep1.setEndDate(cal.getTime());
-
-        SubStep subStep2 = new SubStep("Sub-step B");
-        subStep2.setDescription("Tooltip for Sub-step B");
-        subStep2.setBackgroundColor("A8D9BB");
-        subStep2.setStartDate(cal.getTime());
-        cal.add(Calendar.MONTH, 1);
-        subStep2.setEndDate(cal.getTime());
-
-        SubStep subStep3 = new SubStep("Sub-step C");
-        subStep3.setDescription("Tooltip for Sub-step C");
-        subStep3.setBackgroundColor("A8D999");
-        subStep3.setStartDate(cal.getTime());
-        cal.add(Calendar.MONTH, 1);
-        subStep3.setEndDate(step1.getEndDate());
-
-        stepWithSubSteps.addSubStep(subStep1);
-        stepWithSubSteps.addSubStep(subStep2);
-        stepWithSubSteps.addSubStep(subStep3);
-
-        gantt.addStep(step1);
-        gantt.addStep(step2);
-        gantt.addStep(step3);
-        gantt.addStep(step4);
-        gantt.addStep(stepWithSubSteps);
+        gantt.setYearsVisible(false);
+        gantt.setMonthsVisible(false);
 
 
-        String[] colors = new String[] { "11FF11", "33FF33", "55FF55",
-                "77FF77", "99FF99", "BBFFBB", "DDFFDD" };
 
-        cal.setTime(new Date());
-        for (int i = 0; i < 10; i++) {
-            Step step = new Step("Step " + i);
-            step.setStartDate(cal.getTime().getTime());
-            cal.add(Calendar.DATE, 14);
-            step.setEndDate(cal.getTime().getTime());
-            step.setBackgroundColor(colors[i % colors.length]);
-            gantt.addStep(step);
+        gantt.setResolution(org.tltv.gantt.client.shared.Resolution.Day);
+        gantt.setReadOnly(true);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        PrioritizeUserStories prioritizeUserStories= new PrioritizeUserStories();
+        Map userStorieMap = prioritizeUserStories.getPrioritizeUserStoryMap(project);
+
+        Step previosStep = null;
+
+        System.out.println(userStorieMap.toString());
+        Iterator it = userStorieMap.entrySet().iterator();
+        while (it.hasNext()) {
+
+            Map.Entry pair = (Map.Entry)it.next();
+            UserStory userStory=(UserStory)pair.getValue();
+            //System.out.println(pair.getKey() + " = " + pair.getValue());
+            it.remove();
+
+
+            Step step1 = new Step(((UserStory)pair.getValue()).getName());
+            step1.setDescription(((UserStory) pair.getValue()).getName());
+            step1.setStartDate(cal.getTime());
+            cal.add(Calendar.DATE, 1);
+            step1.setEndDate(cal.getTime());
+
+            if(userStory.getState().equals("initial"))
+            {
+                step1.setBackgroundColor("#0040FF");
+            }
+            else if(userStory.getState().equals("working"))
+            {
+                step1.setBackgroundColor("#00FF40");
+            }
+            else if(userStory.getState().equals("done"))
+            {
+                step1.setBackgroundColor("#FF00FF");
+            }
+
+            if(previosStep == null)
+            {
+                gantt.addStep(step1);
+                previosStep=step1;
+            }
+            else
+            {
+                step1.setPredecessor(previosStep);
+                gantt.addStep(step1);
+                previosStep=step1;
+
+            }
+
         }
+
+
+
 
         gantt.addClickListener(new Gantt.ClickListener() {
 
@@ -358,6 +368,7 @@ public class GanttChart  {
         reso.addItem(org.tltv.gantt.client.shared.Resolution.Day);
         reso.addItem(org.tltv.gantt.client.shared.Resolution.Week);
         reso.setValue(gantt.getResolution());
+        //reso.setValue(org.tltv.gantt.client.shared.Resolution.Week);
         reso.setImmediate(true);
         reso.addValueChangeListener(resolutionValueChangeListener);
 
@@ -591,176 +602,53 @@ public class GanttChart  {
     }
 
     private void openStepEditor(AbstractStep step) {
-        final Window win = new Window("Step Editor");
+        final Window win = new Window("More Info");
         win.setResizable(false);
         win.center();
 
-        final Collection<Component> hidden = new ArrayList<Component>();
-
-        BeanItem<AbstractStep> item = new BeanItem<AbstractStep>(step);
-
-        final FieldGroup group = new FieldGroup(item);
-        group.setBuffered(true);
-
-        TextField captionField = new TextField("Caption");
-        captionField.setNullRepresentation("");
-        group.bind(captionField, "caption");
-
-        TextField descriptionField = new TextField("Description");
-        descriptionField.setNullRepresentation("");
-        group.bind(descriptionField, "description");
-        descriptionField.setVisible(false);
-        hidden.add(descriptionField);
-
-        NativeSelect captionMode = new NativeSelect("Caption Mode");
-        captionMode.addItem(Step.CaptionMode.TEXT);
-        captionMode.addItem(Step.CaptionMode.HTML);
-        group.bind(captionMode, "captionMode");
-        captionMode.setVisible(false);
-        hidden.add(captionMode);
-
-        final NativeSelect parentStepSelect = new NativeSelect("Parent Step");
-        parentStepSelect.setEnabled(false);
-        if (!gantt.getSteps().contains(step)) {
-            // new step
-            parentStepSelect.setEnabled(true);
-            for (Step parentStepCanditate : gantt.getSteps()) {
-                parentStepSelect.addItem(parentStepCanditate);
-                parentStepSelect.setItemCaption(parentStepCanditate,
-                        parentStepCanditate.getCaption());
-                if (step instanceof SubStep) {
-                    if (parentStepCanditate.getSubSteps().contains(step)) {
-                        parentStepSelect.setValue(parentStepCanditate);
-                        parentStepSelect.setEnabled(false);
-                        break;
-                    }
-                }
-            }
-        }
-        parentStepSelect.setVisible(false);
-        hidden.add(parentStepSelect);
-
-        TextField bgField = new TextField("Background color");
-        bgField.setNullRepresentation("");
-        group.bind(bgField, "backgroundColor");
-        bgField.setVisible(false);
-        hidden.add(bgField);
-
-        DateField startDate = new DateField("Start date");
-        startDate.setLocale(gantt.getLocale());
-        startDate.setTimeZone(gantt.getTimeZone());
-        startDate.setResolution(Resolution.SECOND);
-        startDate.setConverter(new DateToLongConverter());
-        group.bind(startDate, "startDate");
-
-        DateField endDate = new DateField("End date");
-        endDate.setLocale(gantt.getLocale());
-        endDate.setTimeZone(gantt.getTimeZone());
-        endDate.setResolution(Resolution.SECOND);
-        endDate.setConverter(new DateToLongConverter());
-        group.bind(endDate, "endDate");
-
-        CheckBox showMore = new CheckBox("Show all settings");
-        showMore.addValueChangeListener(new ValueChangeListener() {
-
-            @Override
-            public void valueChange(ValueChangeEvent event) {
-                for (Component c : hidden) {
-                    c.setVisible((Boolean) event.getProperty().getValue());
-                }
-                win.center();
-            }
-        });
 
         VerticalLayout content = new VerticalLayout();
         content.setMargin(true);
         content.setSpacing(true);
         win.setContent(content);
 
-        content.addComponent(captionField);
-        content.addComponent(captionMode);
-        content.addComponent(descriptionField);
-        content.addComponent(parentStepSelect);
-        content.addComponent(bgField);
-        content.addComponent(startDate);
-        content.addComponent(endDate);
-        content.addComponent(showMore);
+        String userStoryName = step.getCaption();
+        UserStoryDAO userStoryDAO = (UserStoryDAO) DashboardUI.context.getBean("UserStory");
+        UserStory userStory = userStoryDAO.getUserStoryFormProjectNameAndUserStoryName(project.getName(),userStoryName);
 
-        HorizontalLayout buttons = new HorizontalLayout();
-        content.addComponent(buttons);
+
+        TextField userStoryNameField = new TextField("User Story Name");
+        userStoryNameField.setValue(userStory.getName());
+
+        TextField userStoryPriority = new TextField("Priority");
+        userStoryPriority.setValue(String.valueOf(userStory.getPriority()));
+
+        TextField userStoryState = new TextField("State");
+        userStoryState.setValue(userStory.getState());
+
+        TextField projectName = new TextField("Project Name");
+        projectName.setValue(project.getName());
+
+
+        content.addComponent(userStoryNameField);
+        content.addComponent(userStoryPriority);
+        content.addComponent(userStoryState);
+        content.addComponent(projectName);
+
+
+
 
         Button ok = new Button("Ok", new ClickListener() {
 
             @Override
             public void buttonClick(ClickEvent event) {
-                try {
-                    group.commit();
-                    AbstractStep step = ((BeanItem<AbstractStep>) group
-                            .getItemDataSource()).getBean();
-                    gantt.markStepDirty(step);
-                    if (parentStepSelect.isEnabled()
-                            && parentStepSelect.getValue() != null) {
-                        SubStep subStep = addSubStep(parentStepSelect, step);
-                        step = subStep;
-                    }
-                    if (step instanceof Step
-                            && !gantt.getSteps().contains(step)) {
-                        gantt.addStep((Step) step);
-                    }
-                    if (ganttListener != null && step instanceof Step) {
-                        ganttListener.stepModified((Step) step);
-                    }
-                    win.close();
-                } catch (CommitException e) {
-                    Notification.show("Commit failed", e.getMessage(),
-                            Type.ERROR_MESSAGE);
-                    e.printStackTrace();
-                }
-            }
 
-            private SubStep addSubStep(final NativeSelect parentStepSelect,
-                                       AbstractStep dataSource) {
-                SubStep subStep = new SubStep();
-                subStep.setCaption(dataSource.getCaption());
-                subStep.setCaptionMode(dataSource.getCaptionMode());
-                subStep.setStartDate(dataSource.getStartDate());
-                subStep.setEndDate(dataSource.getEndDate());
-                subStep.setBackgroundColor(dataSource.getBackgroundColor());
-                subStep.setDescription(dataSource.getDescription());
-                subStep.setStyleName(dataSource.getStyleName());
-                ((Step) parentStepSelect.getValue()).addSubStep(subStep);
-                return subStep;
-            }
-        });
-        Button cancel = new Button("Cancel", new ClickListener() {
-
-            @Override
-            public void buttonClick(ClickEvent event) {
-                group.discard();
                 win.close();
             }
-        });
-        Button delete = new Button("Delete", new ClickListener() {
 
-            @Override
-            public void buttonClick(ClickEvent event) {
-                AbstractStep step = ((BeanItem<AbstractStep>) group
-                        .getItemDataSource()).getBean();
-                if (step instanceof SubStep) {
-                    SubStep substep = (SubStep) step;
-                    substep.getOwner().removeSubStep(substep);
-                } else {
-                    gantt.removeStep((Step) step);
-                    if (ganttListener != null) {
-                        ganttListener.stepDeleted((Step) step);
-                    }
-                }
-                win.close();
-            }
         });
-        buttons.addComponent(ok);
-        buttons.addComponent(cancel);
-        buttons.addComponent(delete);
+
+        content.addComponent(ok);
         win.setClosable(true);
 
         DashboardUI.getCurrent().getUI().addWindow(win);

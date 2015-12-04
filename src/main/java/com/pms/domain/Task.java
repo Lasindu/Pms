@@ -1,6 +1,7 @@
 package com.pms.domain;
 
 import javax.persistence.*;
+import java.util.Comparator;
 
 /**
  * Created by Upulie on 4/14/2015.
@@ -22,10 +23,18 @@ public class Task {
     private String preRequisits;
     private String dependancy;
     private String memberType;
+    private String domainSkill;
+    private String technicalSkill;
     private String estimateTime;
     private String assignedTo;
     private String completeTime;
     private boolean isCr;
+    private int isComplete;
+	private String state;
+	private String startTime;
+    private String isAssigned;
+    private boolean isProcessed = false;
+    private int rowId;
 
     @ManyToOne()
     @JoinColumn(name="userStoryId")
@@ -75,6 +84,22 @@ public class Task {
 
     public String getDate() {
         return date;
+    }
+
+    public String getDomainSkill() {
+        return domainSkill;
+    }
+
+    public void setDomainSkill(String domainSkill) {
+        this.domainSkill = domainSkill;
+    }
+
+    public String getTechnicalSkill() {
+        return technicalSkill;
+    }
+
+    public void setTechnicalSkill(String technicalSkill) {
+        this.technicalSkill = technicalSkill;
     }
 
     public void setDate(String date) {
@@ -137,16 +162,57 @@ public class Task {
         this.isCr = isCr;
     }
 
+    public int getIsComplete() {
+        return isComplete;
+    }
+
+    public void setIsComplete(int isComplete) {
+        this.isComplete = isComplete;
+    }
+
+    public String getIsAssigned() {
+        return isAssigned;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setIsAssigned(String isAssigned) {
+        this.isAssigned = isAssigned;
+    }
+
     public UserStory getUserStory() {
         return userStory;
     }
 
     public void setUserStory(UserStory userStory) {
         this.userStory = userStory;
+    }	
+	public String getState() {
+        return state;
+    }
+    public void setState(String state) {
+        this.state = state;
     }
 
+    public boolean isProcessed() {
+        return isProcessed;
+    }
 
+    public void setProcessed(boolean isProcessed) {
+        this.isProcessed = isProcessed;
+    }
 
+    public int getRowId() {
+        return rowId;
+    }
 
-
+    public void setRowId(int rowId) {
+        this.rowId = rowId;
+    }
 }
