@@ -90,7 +90,7 @@ public class ViewMember extends CustomComponent {
         final UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
         final ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
         user = userDAO.loadUserDetails(userName);
-
+        Quality qty = userDAO.loadUserQuality(userName);
 
         HorizontalLayout header = new HorizontalLayout();
         header.addStyleName("viewheader");
@@ -121,7 +121,7 @@ public class ViewMember extends CustomComponent {
         Label email=new Label("Email :   "+user.getEmail());
         Label mobile= new Label("Mobile :   "+user.getContact());
         Label role=new Label("Role :   "+user.getRole());
-        Label rate=new Label("Overall Rating :   "+9);
+        Label rate=new Label("Overall Rating :   "+qty.getRate());
         Label dateOfBirth=new Label("Date of Birth :   "+user.getDateOfBirth());
         Label experience=new Label("Experience :   "+user.getExperience());
         Label project=new Label("Working Project :   "+user.getAssignedProjectName());
@@ -131,7 +131,7 @@ public class ViewMember extends CustomComponent {
         Label email1=new Label("Email :   "+user.getEmail());
         Label mobile1= new Label("Mobile :   "+user.getContact());
         Label role1=new Label("Role :   "+user.getRole());
-        Label rate1=new Label("Overall Rating :   "+10);
+        Label rate1=new Label("Overall Rating :   "+qty.getRate());
         Label dateOfBirth1=new Label("Date of Birth :   "+user.getDateOfBirth());
         Label project1=new Label("Working Project :   "+user.getAssignedProjectName());
         Label dSkill1=new Label("Domain Skill :   "+user.getDomainSkills());
@@ -141,7 +141,7 @@ public class ViewMember extends CustomComponent {
         VerticalLayout userDetailss2 = new VerticalLayout(breake3,breake4,uName1,dateOfBirth1,email1,mobile1,role1,rate1,project1,dSkill1,tSkill1);
         HorizontalLayout ratingFormHoriLayout = new HorizontalLayout(proImg,space1,userDetailss,space2,buildRatingForm());
         HorizontalLayout ratingFormHoriLayoutForQa = new HorizontalLayout(proImg1,space3,userDetailss2,space4,buildRatingFormForQa());
-        if(user.getRole().equalsIgnoreCase("project manager") || user.getRole().equalsIgnoreCase("software engineer") || user.getRole().equalsIgnoreCase("team leader")){
+        if(user.getRole().equalsIgnoreCase("project manager") || user.getRole().equalsIgnoreCase("software engineer") || user.getRole().equalsIgnoreCase("team leader")|| user.getRole().equalsIgnoreCase("admin")){
             viewProjectLayout.addComponent(ratingFormHoriLayout);
         }else if(user.getRole().equalsIgnoreCase("quality engineer")){
             viewProjectLayout.addComponent(ratingFormHoriLayoutForQa);
@@ -231,32 +231,48 @@ public class ViewMember extends CustomComponent {
 
     private FormLayout buildRatingForm() {
 
+        UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+        Quality qlty = userDAO.loadUserQuality(userName);
         FormLayout formLayout = new FormLayout();
 
         ReopenDefects = new Select("Reopen Defects :");
+        ReopenDefects.addItem(qlty.getReopenDefects());
         for(int i=1;i<=10;i++){
             ReopenDefects.addItem(i);
         }
+        ReopenDefects.setValue(ReopenDefects.getItemIds().iterator().next());
         formLayout.addComponent(ReopenDefects);
+
         foundDefects = new Select("Found Defects :");
+        foundDefects.addItem(qlty.getFoundDefects());
         for(int i=1;i<=10;i++){
             foundDefects.addItem(i);
         }
+        foundDefects.setValue(foundDefects.getItemIds().iterator().next());
         formLayout.addComponent(foundDefects);
+
         userReview = new Select("User Review :");
+        userReview.addItem(qlty.getUserReview());
         for(int i=1;i<=10;i++){
             userReview.addItem(i);
         }
+        userReview.setValue(userReview.getItemIds().iterator().next());
         formLayout.addComponent(userReview);
+
         learningCapacity = new Select("Learning Capacity :");
+        learningCapacity.addItem(qlty.getLearningCapacity());
         for(int i=1;i<=10;i++){
             learningCapacity.addItem(i);
         }
+        learningCapacity.setValue(learningCapacity.getItemIds().iterator().next());
         formLayout.addComponent(learningCapacity);
+
         dedicationToWork = new Select("Dedication To Work :");
+        dedicationToWork.addItem(qlty.getDedicationToWork());
         for(int i=1;i<=10;i++){
             dedicationToWork.addItem(i);
         }
+        dedicationToWork.setValue(dedicationToWork.getItemIds().iterator().next());
 
         formLayout.addComponent(dedicationToWork);
         submiRate = new Button("Submit");
@@ -271,47 +287,63 @@ public class ViewMember extends CustomComponent {
                 int dur = Integer.parseInt(userReview.getValue().toString());
                 int dlc = Integer.parseInt(learningCapacity.getValue().toString());
                 int dtw = Integer.parseInt(dedicationToWork.getValue().toString());
+                int averageRate = (drd+dfd+dur+dlc+dtw)/5;
                 quality.setUserName(userName);
                 quality.setReopenDefects(drd);
                 quality.setFoundDefects(dfd);
                 quality.setUserReview(dur);
                 quality.setLearningCapacity(dlc);
                 quality.setDedicationToWork(dtw);
-
-                //userDAO.updateQuality(quality);
+                quality.setRate(averageRate);
+                userDAO.updateQuality(quality);
             }
         });
         return formLayout;
     }
     private FormLayout buildRatingFormForQa() {
 
+        UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+        Quality qlty = userDAO.loadUserQuality(userName);
         FormLayout formLayout = new FormLayout();
 
         uatDeffects = new Select("UAT Defects :");
+        uatDeffects.addItem(qlty.getUatDefects());
         for(int i=1;i<=10;i++){
             uatDeffects.addItem(i);
         }
+        uatDeffects.setValue(uatDeffects.getItemIds().iterator().next());
         formLayout.addComponent(uatDeffects);
+
         reportedBugs = new Select("Reported Bugs :");
+        reportedBugs.addItem(qlty.getReportedBugs());
         for(int i=1;i<=10;i++){
             reportedBugs.addItem(i);
         }
+        reportedBugs.setValue(reportedBugs.getItemIds().iterator().next());
         formLayout.addComponent(reportedBugs);
+
         testSuits = new Select("Executed Test Suits :");
+        testSuits.addItem(qlty.getTestSuits());
         for(int i=1;i<=10;i++){
             testSuits.addItem(i);
         }
+        testSuits.setValue(testSuits.getItemIds().iterator().next());
         formLayout.addComponent(testSuits);
+
         writtenTestSuits = new Select("Written Test Suits :");
+        writtenTestSuits.addItem(qlty.getWrittenTestSuits());
         for(int i=1;i<=10;i++){
             writtenTestSuits.addItem(i);
         }
+        writtenTestSuits.setValue(writtenTestSuits.getItemIds().iterator().next());
         formLayout.addComponent(writtenTestSuits);
+
         learningCapacityQa = new Select("Learning Capacity :");
+        learningCapacityQa.addItem(qlty.getLearningCapacity());
         for(int i=1;i<=10;i++){
             learningCapacityQa.addItem(i);
         }
-
+        learningCapacityQa.setValue(learningCapacityQa.getItemIds().iterator().next());
         formLayout.addComponent(learningCapacityQa);
 
         submiRateQa = new Button("Submit");
@@ -327,7 +359,7 @@ public class ViewMember extends CustomComponent {
                 int wts = Integer.parseInt(writtenTestSuits.getValue().toString());
                 int lc = Integer.parseInt(learningCapacityQa.getValue().toString());
                 int dtw = Integer.parseInt(dedicationToWork.getValue().toString());
-
+                int averageRate = (ud+rb+ts+wts+lc+dtw)/6;
                 quality.setUserName(userName);
                 quality.setUatDefects(ud);
                 quality.setReportedBugs(rb);
@@ -335,8 +367,8 @@ public class ViewMember extends CustomComponent {
                 quality.setWrittenTestSuits(wts);
                 quality.setLearningCapacity(lc);
                 quality.setDedicationToWork(dtw);
-
-                //userDAO.updateQuality(quality);
+                quality.setRate(averageRate);
+                userDAO.updateQuality(quality);
             }
         });
         return formLayout;

@@ -147,6 +147,18 @@ public class UserDAO {
         session.close();
     }
 
+    public Quality loadUserQuality(String username)
+    {
+        Quality quality;
+        Session session = getSessionFactory().openSession();
+        session.beginTransaction();
+        quality=(Quality)session.get(Quality.class,username);
+        session.getTransaction().commit();
+        session.close();
+
+        return quality;
+    }
+
 
     public SessionFactory getSessionFactory() {
         return sessionFactory;
