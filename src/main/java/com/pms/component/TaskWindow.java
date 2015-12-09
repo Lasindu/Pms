@@ -1,11 +1,10 @@
 package com.pms.component;
 
 import com.pms.DashboardUI;
-import com.pms.dao.ProjectDAO;
 import com.pms.dao.TaskDAO;
-import com.pms.dao.UserDAO;
 import com.pms.dao.UserStoryDAO;
-import com.pms.domain.*;
+import com.pms.domain.Task;
+import com.pms.domain.UserStory;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
@@ -23,7 +22,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -50,19 +48,20 @@ public class TaskWindow extends Window {
     private OptionGroup preRequisitsList;
     @PropertyId("memberType")
     private ComboBox memberType;
-    @PropertyId("technicalSkill")
-    private Select technicalSkill;
-    @PropertyId("domainSkill")
-    private Select domainSkill;
     @PropertyId("estimateTime")
     private TextField estimateTime;
     @PropertyId("assignedTo")
     private TextField assignedTo;
     @PropertyId("completeTime")
     private TextField completeTime;
+    @PropertyId("state")
+    private ComboBox state;
     @PropertyId("isCr")
     private OptionGroup isCr;
     private OptionGroup dependencyList;
+
+    private OptionGroup technicalSkillsList;
+    private ComboBox domainSkill;
 
 
     private TaskWindow(Task task) {
@@ -107,6 +106,13 @@ public class TaskWindow extends Window {
         fieldGroup.bindMemberFields(this);
         fieldGroup.setItemDataSource(task);
 
+        if(editmode)
+        {
+            fieldGroup.unbind(name);
+            name.setValue(task.getName());
+            name.setReadOnly(true);
+        }
+
 
     }
 
@@ -141,6 +147,12 @@ public class TaskWindow extends Window {
         completeTime = new TextField("Complete Time");
         completeTime.setNullRepresentation("");
         taskForm.addComponent(completeTime);
+
+        state = new ComboBox("State");
+        state.addItem("initial");
+        state.addItem("working");
+        state.addItem("done");
+        taskForm.addComponent(state);
 
         severity = new ComboBox("Severity");
         severity.addItem(1);
@@ -201,22 +213,8 @@ public class TaskWindow extends Window {
         taskForm.addComponent(assignedTo);
 
 
-        //multipe imputs
-        UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
 
-        technicalSkill = new Select("Select Technical Skill");
-        List<TechnicalSkill> techSkill = userDAO.loadTechSkills();
-        for(int i=0;i<techSkill.size();i++){
-            technicalSkill.addItem(techSkill.get(i).getTechName());
-        }
-        taskForm.addComponent(technicalSkill);
 
-        domainSkill = new Select("Select Domain Skill");
-        List<DomainSkill> domSkill = userDAO.loadDomSkills();
-        for(int i=0;i<domSkill.size();i++){
-            domainSkill.addItem(domSkill.get(i).getDomName());
-        }
-        taskForm.addComponent(domainSkill);
 
 
         isCr = new OptionGroup("Change Request");
@@ -300,7 +298,72 @@ public class TaskWindow extends Window {
             });
 
 
+        domainSkill = new ComboBox("Domain Skill");
 
+        TaskDAO taskDAO = (TaskDAO) DashboardUI.context.getBean("Task");
+        String domainSkillsList = taskDAO.getDomainSkillsOfTasks();
+
+        if(domainSkillsList != null && !domainSkillsList.isEmpty())
+        {
+            for(String domainSkillString : domainSkillsList.split(","))
+            {
+                domainSkill.addItem(domainSkillString);
+            }
+
+
+            if(editmode)
+            {
+                if(task.getDomainSkill() != null && !task.getDomainSkill().isEmpty())
+                if(domainSkillsList.contains(task.getDomainSkill()))
+                {
+                    domainSkill.setValue(task.getDomainSkill());
+                }
+            }
+        }
+
+        domainSkill.setRequired(true);
+        taskForm.addComponent(domainSkill);
+
+
+        technicalSkillsList = new OptionGroup("Technical Skills");
+        technicalSkillsList.setWidth("400px");
+        technicalSkillsList.setNullSelectionAllowed(true);
+
+        String technicalSkillsOfTasks = taskDAO.getTechnicalSkillsOfTasks();
+
+        if(technicalSkillsOfTasks != null && !technicalSkillsOfTasks.isEmpty())
+        {
+            for(String technicalSkillString : technicalSkillsOfTasks.split(","))
+            {
+                technicalSkillsList.addItem(technicalSkillString);
+            }
+
+        }
+        technicalSkillsList.setMultiSelect(true);
+
+        Panel technicalSkillsPanel = new Panel("");
+        technicalSkillsPanel.setHeight("100px");
+        technicalSkillsPanel.setContent(technicalSkillsList);
+        final VerticalLayout technicalSkillsLayout = new VerticalLayout();
+        technicalSkillsLayout.setCaption("Technical Skills");
+        technicalSkillsLayout.addComponent(technicalSkillsPanel);
+        taskForm.addComponent(technicalSkillsLayout);
+
+
+        if(editmode)
+        {
+            if(task.getTechnicalSkill()!= null && !task.getTechnicalSkill().isEmpty())
+            {
+                for(String taskTechnicalSkill : task.getTechnicalSkill().split(","))
+                {
+                    if(technicalSkillsOfTasks.contains(taskTechnicalSkill))
+                    {
+                        technicalSkillsList.select(taskTechnicalSkill);
+
+                    }
+                }
+            }
+        }
 
 
 
@@ -341,12 +404,44 @@ public class TaskWindow extends Window {
                     newTask = fieldGroup.getItemDataSource().getBean();
                     newTask.setUserStory(userStory);
 
+
+                    //bind fields manually that not bind to the feald grope
                     if(isCr.getValue().toString().equals("true"))
                         newTask.setCr(true);
+                    else
+                        newTask.setCr(false);
+
+                    if(domainSkill.getValue() != null)
+                    newTask.setDomainSkill(domainSkill.getValue().toString());
+
+
+
+                    StringBuilder technicalSkillsString = new StringBuilder();
+                    Set<Item> technicalSkillsValues = (Set<Item>) technicalSkillsList.getValue();
+                    int indexcount = 1;
+                    for (Object v : technicalSkillsValues) {
+
+                        if (indexcount != 1 && !v.toString().isEmpty())
+                            technicalSkillsString.append(",");
+                        technicalSkillsString.append(v.toString());
+
+                        ++indexcount;
+
+                    }
+
+                    newTask.setTechnicalSkill(technicalSkillsString.toString());
+
 
 
 
                     if (editmode) {
+
+                        //because of the bug in vaaadin cannot set readonly to single filed so need to set name manually
+                        //when update the task
+                        newTask.setName(name.getValue().toString());
+
+
+
                         TaskDAO taskDAO = (TaskDAO) DashboardUI.context.getBean("Task");
                         String[] preRequistListBeforEdit = task.getPreRequisits().split(",");
 
@@ -372,6 +467,7 @@ public class TaskWindow extends Window {
 
 
                                         }
+
 
                                         taskDAO.updateTask(task1);
                                         break;
@@ -455,7 +551,7 @@ public class TaskWindow extends Window {
                         if(taskPriority < task1.getPriority())
                         {
                             Notification notification = new Notification("Your Selected Priority is Incorrect ",
-                                    "<br/>You have Prerequisit that has low prority than this Task",
+                                    "<br/>You have Prerequisite that has lowpriorityy than this Task",
                                     Notification.Type.ERROR_MESSAGE,true);
 
                             notification.show(Page.getCurrent());

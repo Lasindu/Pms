@@ -175,6 +175,10 @@ public class TaskGanttChart  {
         gantt.setResizableSteps(false);
         gantt.setMovableSteps(true);
         gantt.addAttachListener(ganttAttachListener);
+
+        //gantt.setYearsVisible(false);
+        gantt.setMonthsVisible(false);
+
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
         gantt.setStartDate(cal.getTime());
@@ -215,17 +219,17 @@ public class TaskGanttChart  {
                 step1.setEndDate(startTime+Integer.parseInt(task1.getStartTime())*3600*1000 + Integer.parseInt(task1.getEstimateTime())*3600*1000);//cal.getTime().getTime()
                 //System.out.println("End Time : "+startTime+Integer.parseInt(task1.getStartTime())*3600*1000 + Integer.parseInt(task1.getEstimateTime())*3600*1000 +"/End Hour : " + (startTime+Integer.parseInt(task1.getStartTime())*3600*1000 + Integer.parseInt(task1.getEstimateTime())*3600*1000)/3600000);
                 //Change color of background according to state of task
-                if(task1.getState().equals("#F5A9F2"))
+                if(task1.getState().equals("initial"))
                 {
-                    step1.setBackgroundColor("#0040FF");
+                    step1.setBackgroundColor("#A9F5F2");
                 }
                 else if(task1.getState().equals("working"))
                 {
-                    step1.setBackgroundColor("#00FF40");
+                    step1.setBackgroundColor("#D0F5A9");
                 }
                 else if(task1.getState().equals("done"))
                 {
-                    step1.setBackgroundColor("#FF00FF");
+                    step1.setBackgroundColor("#F5D0A9");
                 }
 
                 if(task1.isCr()) step1.setBackgroundColor("#F5073B");

@@ -172,6 +172,8 @@ public class TaskGanntChart  {
         layout.addComponent(wrapper);
         layout.setExpandRatio(wrapper, 1);
 
+        controls.setVisible(false);
+
         return  layout;
     }
 
@@ -180,16 +182,36 @@ public class TaskGanntChart  {
 
         gantt = new Gantt();
         gantt.setWidth(100, Sizeable.Unit.PERCENTAGE);
-        gantt.setHeight(400, Sizeable.Unit.PIXELS);
+        gantt.setHeight(460, Sizeable.Unit.PIXELS);
         gantt.setResizableSteps(true);
         gantt.setMovableSteps(true);
         gantt.addAttachListener(ganttAttachListener);
+
+
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
+
+        Date date = new Date();
+        date.setYear(2015);
+        date.setMonth(0);
+        date.setDate(5);
+
+
+        // date.setTime(0);
+
+        cal.setTime(date);
+        cal.set(Calendar.HOUR,0);
         gantt.setStartDate(cal.getTime());
-        cal.add(Calendar.YEAR, 1);
+        cal.add(Calendar.DATE, 360);
         gantt.setEndDate(cal.getTime());
-        cal.setTime(new Date());
+        cal.setTime(date);
+
+
+        gantt.setYearsVisible(false);
+        gantt.setMonthsVisible(false);
+        gantt.setResolution(org.tltv.gantt.client.shared.Resolution.Week);
+        gantt.setReadOnly(true);
+
+
 
 
 
@@ -311,21 +333,21 @@ public class TaskGanntChart  {
             Step step1 = new Step(task1.getName());
             step1.setDescription(task1.getName());
             step1.setStartDate(cal.getTime().getTime());
-            cal.add(Calendar.MONTH, 1);
+            cal.add(Calendar.DATE, Integer.parseInt(task1.getEstimateTime())*7);
             step1.setEndDate(cal.getTime().getTime());
 
             //Change color of background according to state of task
             if(task1.getState().equals("initial"))
             {
-                step1.setBackgroundColor("#0040FF");
+                step1.setBackgroundColor("#A9F5F2");
             }
             else if(task1.getState().equals("working"))
             {
-                step1.setBackgroundColor("#00FF40");
+                step1.setBackgroundColor("#D0F5A9");
             }
             else if(task1.getState().equals("done"))
             {
-                step1.setBackgroundColor("#FF00FF");
+                step1.setBackgroundColor("#F5D0A9");
             }
 
             if(previosStep==null)

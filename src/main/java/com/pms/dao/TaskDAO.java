@@ -187,7 +187,18 @@ public class TaskDAO {
 
         return null;
     }
+    public String getTechnicalSkillsOfTasks()
+    {
+        //write logic to find the get technical skills comma separated list
 
+        return "aaa,bbb,ccc";
+    }
+
+    public String getDomainSkillsOfTasks()
+    {
+        //write logic to find the get domain skills comma separated list
+        return "aaa,bbb,ccc";
+    }
 
 
 

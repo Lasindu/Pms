@@ -150,12 +150,16 @@ public class UserStoryGanntChart  {
         TabSheet tabsheet = new TabSheet();
         tabsheet.setSizeFull();
 
-        Component wrapper = UriFragmentWrapperFactory.wrapByUriFragment(UI
-                .getCurrent().getPage().getUriFragment(), gantt);
+/*        Component wrapper = UriFragmentWrapperFactory.wrapByUriFragment(UI.getCurrent().getPage().getUriFragment(), gantt);
+        if (wrapper instanceof GanttListener) {
+            ganttListener = (GanttListener) wrapper;
+        }*/
+
+        //to show table
+        Component wrapper = UriFragmentWrapperFactory.wrapByUriFragment("table", gantt);
         if (wrapper instanceof GanttListener) {
             ganttListener = (GanttListener) wrapper;
         }
-
 
 
         final VerticalLayout layout = new VerticalLayout();
@@ -177,7 +181,7 @@ public class UserStoryGanntChart  {
 
         gantt = new Gantt();
         gantt.setWidth(100, Sizeable.Unit.PERCENTAGE);
-        gantt.setHeight(400, Sizeable.Unit.PIXELS);
+        gantt.setHeight(460, Sizeable.Unit.PIXELS);
         gantt.setResizableSteps(true);
         gantt.setMovableSteps(true);
         gantt.addAttachListener(ganttAttachListener);
@@ -187,8 +191,8 @@ public class UserStoryGanntChart  {
 
         Date date = new Date();
         date.setYear(2015);
-        date.setMonth(1);
-        date.setDate(1);
+        date.setMonth(0);
+        date.setDate(5);
 
 
        // date.setTime(0);
@@ -196,7 +200,7 @@ public class UserStoryGanntChart  {
         cal.setTime(date);
         cal.set(Calendar.HOUR,0);
         gantt.setStartDate(cal.getTime());
-        cal.add(Calendar.DATE, 25);
+        cal.add(Calendar.DATE, 105);
         gantt.setEndDate(cal.getTime());
         cal.setTime(date);
 
@@ -204,11 +208,9 @@ public class UserStoryGanntChart  {
 
         gantt.setYearsVisible(false);
         gantt.setMonthsVisible(false);
-
-
-
-        gantt.setResolution(org.tltv.gantt.client.shared.Resolution.Day);
+        gantt.setResolution(org.tltv.gantt.client.shared.Resolution.Week);
         gantt.setReadOnly(true);
+
 
 
 
@@ -246,20 +248,20 @@ public class UserStoryGanntChart  {
             Step step1 = new Step(((UserStory)pair.getValue()).getName());
             step1.setDescription(((UserStory) pair.getValue()).getName());
             step1.setStartDate(cal.getTime());
-            cal.add(Calendar.DATE, 1);
+            cal.add(Calendar.DATE, 7);
             step1.setEndDate(cal.getTime());
 
             if(userStory.getState().equals("initial"))
             {
-                step1.setBackgroundColor("#0040FF");
+                step1.setBackgroundColor("#A9F5F2");
             }
             else if(userStory.getState().equals("working"))
             {
-                step1.setBackgroundColor("#00FF40");
+                step1.setBackgroundColor("#D0F5A9");
             }
             else if(userStory.getState().equals("done"))
             {
-                step1.setBackgroundColor("#FF00FF");
+                step1.setBackgroundColor("#F5D0A9");
             }
 
             if(previosStep == null)
