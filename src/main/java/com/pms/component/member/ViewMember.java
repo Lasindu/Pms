@@ -2,6 +2,7 @@ package com.pms.component.member;
 
 import com.pms.DashboardUI;
 import com.pms.dao.ProjectDAO;
+import com.pms.dao.QualityDAO;
 import com.pms.dao.TaskDAO;
 import com.pms.dao.UserDAO;
 import com.pms.domain.*;
@@ -88,9 +89,10 @@ public class ViewMember extends CustomComponent {
 
         //get project object prom the database
         final UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
+        final QualityDAO qualityDAO = (QualityDAO) DashboardUI.context.getBean("Quality");
         final ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
         user = userDAO.loadUserDetails(userName);
-        Quality qty = userDAO.loadUserQuality(userName);
+        Quality qty = qualityDAO.loadUserQuality(userName);
 
         HorizontalLayout header = new HorizontalLayout();
         header.addStyleName("viewheader");
@@ -160,9 +162,11 @@ public class ViewMember extends CustomComponent {
         myTaskTable.addContainerProperty("Task Name",  String.class, null);
         myTaskTable.addContainerProperty("Project", String.class, null);
         myTaskTable.addContainerProperty("Estimate Time", String.class, null);
-        if(userRole.equalsIgnoreCase("admin") ||userRole.equalsIgnoreCase("pm")){
+        myTaskTable.addContainerProperty("State", String.class, null);
+        //if(userRole.equalsIgnoreCase("admin") ||userRole.equalsIgnoreCase("pm")){
             myTaskTable.addContainerProperty("Duration", TextField.class, null);
-        }
+        //}
+        myTaskTable.addContainerProperty("Start Task", Button.class, null);
         myTaskTable.addContainerProperty("Complete Task", Button.class, null);
         myTaskTable.setSizeFull();
 
@@ -175,7 +179,7 @@ public class ViewMember extends CustomComponent {
 
                 UserStory us = taskList.get(x).getUserStory();
                 String pro = projectDAO.getProjectIdFromUserStoryName(us.getName());
-
+                Button startTaskButton=new Button("Start");
                 Button completeTaskButton=new Button("Complete");
                 TextField durationTextField = new TextField("1");
                 if(taskList.get(x).getCompleteTime()!= null){
@@ -190,9 +194,10 @@ public class ViewMember extends CustomComponent {
                 }
                 taskList.get(x).setSeverity(x+1);
                 completeTaskButton.setData(taskList.get(x));
+                startTaskButton.setData(taskList.get(x));
 
                 if(userRole.equalsIgnoreCase("admin") || userRole.equalsIgnoreCase("pm")){
-                    myTaskTable.addItem(new Object[]{index, taskList.get(x).getName(),pro, taskList.get(x).getEstimateTime(), durationTextField, completeTaskButton},index);
+                    myTaskTable.addItem(new Object[]{index, taskList.get(x).getName(),pro, taskList.get(x).getEstimateTime(),taskList.get(x).getState(),durationTextField, startTaskButton,completeTaskButton},index);
                 }
                 completeTaskButton.addClickListener(new Button.ClickListener() {
                     public void buttonClick(Button.ClickEvent event) {
@@ -207,12 +212,39 @@ public class ViewMember extends CustomComponent {
 
                         task.setCompleteTime(duration);
                         task.setSeverity(0);
+                        task.setIsComplete(1);
+                        task.setState("done");
                         taskDAO.updateTask(task);
                         if(duration==null){
                             duration = "0";
                         }
                         Notification success = new Notification(
                                 "Duration for task is "+duration);
+                        success.setDelayMsec(2000);
+                        success.setStyleName("bar success small");
+                        success.setPosition(Position.BOTTOM_CENTER);
+                        success.show(Page.getCurrent());
+                    }
+                });
+                startTaskButton.addClickListener(new Button.ClickListener() {
+                    public void buttonClick(Button.ClickEvent event) {
+
+                        //save member query
+                        Task task = (Task)event.getButton().getData();
+                        //String duration = task.getCompleteTime(); // get duration from textfield - not completed
+
+                        int rowId = ((Task)event.getButton().getData()).getSeverity();
+                        Item item = myTaskTable.getItem(rowId);
+                        String duration=item.getItemProperty("Duration").getValue().toString().trim();
+
+                        task.setState("working");
+                        task.setSeverity(0);
+                        taskDAO.updateTask(task);
+                        if(duration==null){
+                            duration = "0";
+                        }
+                        Notification success = new Notification(
+                                "You are starting this task");
                         success.setDelayMsec(2000);
                         success.setStyleName("bar success small");
                         success.setPosition(Position.BOTTOM_CENTER);
@@ -232,7 +264,8 @@ public class ViewMember extends CustomComponent {
     private FormLayout buildRatingForm() {
 
         UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
-        Quality qlty = userDAO.loadUserQuality(userName);
+        QualityDAO qualityDAO= (QualityDAO) DashboardUI.context.getBean("Quality");
+        Quality qlty = qualityDAO.loadUserQuality(userName);
         FormLayout formLayout = new FormLayout();
 
         ReopenDefects = new Select("Reopen Defects :");
@@ -280,7 +313,7 @@ public class ViewMember extends CustomComponent {
 
         submiRate.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+                QualityDAO qualityDAO= (QualityDAO) DashboardUI.context.getBean("Quality");
                 Quality quality = new Quality();
                 int drd = Integer.parseInt(ReopenDefects.getValue().toString());
                 int dfd = Integer.parseInt(foundDefects.getValue().toString());
@@ -295,15 +328,16 @@ public class ViewMember extends CustomComponent {
                 quality.setLearningCapacity(dlc);
                 quality.setDedicationToWork(dtw);
                 quality.setRate(averageRate);
-                userDAO.updateQuality(quality);
+                qualityDAO.updateQuality(quality);
+                Page.getCurrent().reload();
             }
         });
         return formLayout;
     }
     private FormLayout buildRatingFormForQa() {
 
-        UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
-        Quality qlty = userDAO.loadUserQuality(userName);
+        QualityDAO qualityDAO= (QualityDAO) DashboardUI.context.getBean("Quality");
+        Quality qlty = qualityDAO.loadUserQuality(userName);
         FormLayout formLayout = new FormLayout();
 
         uatDeffects = new Select("UAT Defects :");
@@ -351,7 +385,7 @@ public class ViewMember extends CustomComponent {
 
         submiRateQa.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
-                UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+                QualityDAO qualityDAO= (QualityDAO) DashboardUI.context.getBean("Quality");
                 Quality quality = new Quality();
                 int ud = Integer.parseInt(uatDeffects.getValue().toString());
                 int rb = Integer.parseInt(reportedBugs.getValue().toString());
@@ -368,7 +402,8 @@ public class ViewMember extends CustomComponent {
                 quality.setLearningCapacity(lc);
                 quality.setDedicationToWork(dtw);
                 quality.setRate(averageRate);
-                userDAO.updateQuality(quality);
+                qualityDAO.updateQuality(quality);
+                Page.getCurrent().reload();
             }
         });
         return formLayout;

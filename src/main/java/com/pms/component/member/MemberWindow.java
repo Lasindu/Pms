@@ -253,12 +253,13 @@ public class MemberWindow extends Window {
                     else
                     {
                         UserDAO userDAO= (UserDAO) DashboardUI.context.getBean("User");
+                        QualityDAO qualityDAO= (QualityDAO) DashboardUI.context.getBean("Quality");
 
                         userDAO.setUser(user);
 
                         Quality quality = new Quality();
                         quality.setUserName(user.getUserName());
-                        userDAO.setQuality(quality);
+                        qualityDAO.setQuality(quality);
 
                         Notification success = new Notification(
                                 "Member Created successfully");

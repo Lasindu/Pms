@@ -80,11 +80,11 @@ public class UserDAO {
         session.close();
         return list;
     }
-    public List<User> loadSelectedMembers(String mType,String pName)
+    public List<User> loadSelectedMembers(String mType,String pName,String domainSkill)
     {
         String isavailable = "1";
         Session session = getSessionFactory().openSession();
-        String HQL_QUERY = "from User as user  where user.technicalSkills='" + mType + "' and user.isAvailable = null and user.assignedProjectName = '"+pName+"'";
+        String HQL_QUERY = "from User as user  where user.technicalSkills='" + mType + "' and user.isAvailable = null and user.assignedProjectName = '"+pName+"' and user.domainSkills ='"+domainSkill+"'";
         session.beginTransaction();
         Query query = session.createQuery(HQL_QUERY);
         List<User> list = ((org.hibernate.Query) query).list();
@@ -128,37 +128,6 @@ public class UserDAO {
 
         return list;
     }
-
-    //for quality
-    public void setQuality(Quality quality)
-    {
-        Session session = getSessionFactory().openSession();
-        session.beginTransaction();
-        session.save(quality);
-        session.getTransaction().commit();
-        session.close();
-    }
-    public void updateQuality(Quality quality)
-    {
-        Session session = getSessionFactory().openSession();
-        session.beginTransaction();
-        session.update(quality);
-        session.getTransaction().commit();
-        session.close();
-    }
-
-    public Quality loadUserQuality(String username)
-    {
-        Quality quality;
-        Session session = getSessionFactory().openSession();
-        session.beginTransaction();
-        quality=(Quality)session.get(Quality.class,username);
-        session.getTransaction().commit();
-        session.close();
-
-        return quality;
-    }
-
 
     public SessionFactory getSessionFactory() {
         return sessionFactory;

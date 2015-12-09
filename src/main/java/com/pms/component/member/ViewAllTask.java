@@ -33,7 +33,7 @@ public class ViewAllTask {
     public VerticalLayout viewTaskLayout;
     private Table viewTaskTable;
     private Button viewAssignedTask,reSchedule;
-    private ComboBox proList;
+    private ComboBox proListReschedule;
     private String userRole;
 
     @PropertyId("memberName")
@@ -57,6 +57,7 @@ public class ViewAllTask {
         final TaskDAO taskDAO = (TaskDAO) DashboardUI.context.getBean("Task");
         final UserDAO userDAO = (UserDAO) DashboardUI.context.getBean("User");
         final ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
+        final UserStoryDAO userStoryDAO = (UserStoryDAO) DashboardUI.context.getBean("UserStory");
 
         final User user = (User) VaadinSession.getCurrent().getAttribute(
                 User.class.getName());
@@ -153,28 +154,28 @@ public class ViewAllTask {
         projectList.addAll(projectsLoadedUser.getProjects());
 
         //project list for reschedule
-        proList = buildProjectList();
-        proList.setTextInputAllowed(true);
+        proListReschedule = buildProjectList();
+        proListReschedule.setTextInputAllowed(true);
 
         for(int x=0;x<projectList.size();x++)
         {
-            proList.addItem(projectList.get(x).getName());
+            //state
+            boolean isWorkingUStory =  userStoryDAO.isWorkingUS(projectList.get(x).getProjectId());
+            if(isWorkingUStory){
+                proListReschedule.addItem(projectList.get(x).getName());
+            }
         }
-        proList.addListener(new Property.ValueChangeListener() {
+        proListReschedule.addListener(new Property.ValueChangeListener() {
             private static final long serialVersionUID = -5188369735622627751L;
 
             public void valueChange(Property.ValueChangeEvent event) {
-                if (proList.getValue() != null) {
+                if (proListReschedule.getValue() != null) {
                     Project project;
                     for(Project project1:projectList)
                     {
-                        if(project1.getName().equals(proList.getValue()))
+                        if(project1.getName().equals(proListReschedule.getValue()))
                         {
                             project = project1;
-                            final TaskDAO taskDAO = (TaskDAO) DashboardUI.context.getBean("Task");
-                            UserStoryDAO userStoryDAO = (UserStoryDAO) DashboardUI.context.getBean("UserStory");
-                            ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
-
                             TaskAlgo taskAlgoObj = new TaskAlgo();
                             UserStory userStory=userStoryDAO.getCurrentWorkingUserStory(projectDAO.getProjectFromProjectName(project.getName()));
                             List<Task> taskMap = taskDAO.getAllTasksForUSerStory(userStory);
@@ -186,7 +187,7 @@ public class ViewAllTask {
 
         });
 
-        HorizontalLayout tools2 = new HorizontalLayout(proList);
+        HorizontalLayout tools2 = new HorizontalLayout(proListReschedule);
         tools2.setSpacing(true);
         tools2.addStyleName("toolbar");
         viewTaskLayout.addComponent(tools2);
@@ -235,7 +236,7 @@ public class ViewAllTask {
         header.setSpacing(true);
         Responsive.makeResponsive(header);
 
-        Label title = new Label("Task List For Member Asigning");
+        Label title = new Label("Task List For Member Assigning");
         title.setSizeUndefined();
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -265,7 +266,7 @@ public class ViewAllTask {
 
     private Button buildCreateReport() {
 
-        final Button viewAssignTask = new Button("View Assigned Task");
+        final Button viewAssignTask = new Button("View Completed Task");
         viewAssignTask.addClickListener(new Button.ClickListener() {
             public void buttonClick(Button.ClickEvent event) {
                 //view assign task button click
@@ -280,17 +281,17 @@ public class ViewAllTask {
 
         final ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
 
-        final List<Project> projectList = new ArrayList();
-        projectList.addAll(projectDAO.getAllProjects());
+        //final List<Project> projectList = new ArrayList();
+        //projectList.addAll(projectDAO.getAllProjects());
 
         final ComboBox selectProject= new ComboBox("Reschedule...");
         //selectProject.getItem(0);
         selectProject.setTextInputAllowed(true);
 
-        for(int x=0;x<projectList.size();x++)
-        {
-            selectProject.addItem(projectList.get(x).getName());
-        }
+        //for(int x=0;x<projectList.size();x++)
+        //{
+           // selectProject.addItem(projectList.get(x).getName());
+        //}
         return selectProject;
     }
 

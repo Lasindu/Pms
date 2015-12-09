@@ -206,8 +206,8 @@ public class CRProcessing extends CustomComponent {
             startTask.setStartTime("0");
 
             //manually set for other userstory
-            startTask.setUserStory(userStoryDAO.getUserStoryFormProjectNameAndUserStoryName("A1", "US3"));
-            if (startTask.getState().contentEquals("initial")) startTask.setState("pending");
+            startTask.setUserStory(userStoryDAO.getUserStoryFormProjectNameAndUserStoryName("UK Emergency", "USNEw"));
+            //if (startTask.getState().contentEquals("initial")) startTask.setState("pending");
             startTask.setProcessed(true);
             taskDAO.updateTask(startTask);
             taskWithEndTime.put(startTask.getTaskId(), -1);
@@ -221,8 +221,8 @@ public class CRProcessing extends CustomComponent {
             startTask.setStartTime("0");
 
             //manually set for other userstory
-            startTask.setUserStory(userStoryDAO.getUserStoryFormProjectNameAndUserStoryName("A1", "US3"));
-            if (startTask.getState().contentEquals("initial")) startTask.setState("pending");
+            startTask.setUserStory(userStoryDAO.getUserStoryFormProjectNameAndUserStoryName("UK Emergency", "USNEw"));
+            //if (startTask.getState().contentEquals("initial")) startTask.setState("pending");
             startTask.setProcessed(true);
             taskDAO.updateTask(startTask);
             taskWithEndTime.put(startTask.getTaskId(), taskStartTime);
@@ -231,7 +231,7 @@ public class CRProcessing extends CustomComponent {
 
             //set cr start time and update it
             startTask.setStartTime(Integer.toString(taskStartTime));
-            if (startTask.getState().contentEquals("initial")) startTask.setState("pending");
+            //if (startTask.getState().contentEquals("initial")) startTask.setState("pending");
             startTask.setProcessed(true);
             taskDAO.updateTask(startTask);
 

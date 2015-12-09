@@ -173,7 +173,20 @@ public class UserStoryDAO {
         return null;
     }
 
+    public boolean isWorkingUS(int pId){
 
+        String st = "working";
+        Session session = getSessionFactory().openSession();
+        String HQL_QUERY = "from UserStory as userstory  where userstory.project.projectId ='"+pId+"' and userstory.state ='"+st+"'";
+        Query query = session.createQuery(HQL_QUERY);
+        List<Task> list = ((org.hibernate.Query) query).list();
+        session.close();
+        if(list.size()>0)
+        {
+            return true;
+        }
+        return false;
+    }
 
 
 

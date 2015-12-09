@@ -22,7 +22,6 @@ public class QualityDAO {
         session.getTransaction().commit();
         session.close();
     }
-
     public void updateQuality(Quality quality)
     {
         Session session = getSessionFactory().openSession();
@@ -31,20 +30,19 @@ public class QualityDAO {
         session.getTransaction().commit();
         session.close();
     }
-    public int getUserListWithQualityMembers(String uName)
+
+    public Quality loadUserQuality(String username)
     {
+        Quality quality;
         Session session = getSessionFactory().openSession();
-        String HQL_QUERY = "from Quality as quality  where quality.userName='" + uName + "'";
         session.beginTransaction();
-        Query query = session.createQuery(HQL_QUERY);
-        List<Quality> list = ((org.hibernate.Query) query).list();
+        quality=(Quality)session.get(Quality.class,username);
+        session.getTransaction().commit();
         session.close();
-        if(list.size()>0)
-        {
-            return list.get(0).getRate();
-        }
-        return 0;
+
+        return quality;
     }
+
 
 
     public SessionFactory getSessionFactory() {

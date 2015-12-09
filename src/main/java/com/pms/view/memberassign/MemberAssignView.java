@@ -61,7 +61,7 @@ public class MemberAssignView extends CssLayout implements View {
         mainPanel.setContent(mainLayout);
 
         ViewAllTask viewAllTasks=new ViewAllTask();
-        mainLayout.addComponent(viewAllTasks.getAllTasks());
+            mainLayout.addComponent(viewAllTasks.getAllTasks());
     }
 
 }

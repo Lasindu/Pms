@@ -42,8 +42,8 @@
 		<mapping class="com.pms.domain.UserStory" />
 		<mapping class="com.pms.domain.Task" />
 		<mapping class="com.pms.domain.Quality" />
-
-
+		<mapping class="com.pms.domain.TechnicalSkill" />
+		<mapping class="com.pms.domain.DomainSkill" />
 
 	</session-factory>
 </hibernate-configuration>

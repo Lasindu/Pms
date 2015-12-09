@@ -1,10 +1,12 @@
 package com.pms.component.member;
 
 import com.pms.DashboardUI;
+import com.pms.dao.ProjectDAO;
 import com.pms.dao.TaskDAO;
 import com.pms.dao.UserDAO;
 import com.pms.domain.Task;
 import com.pms.domain.User;
+import com.pms.domain.UserStory;
 import com.vaadin.server.Responsive;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.server.VaadinSession;
@@ -57,7 +59,7 @@ public class ViewAllAssignedTask {
         header.setSpacing(true);
         Responsive.makeResponsive(header);
 
-        Label title = new Label("View Assigned Task For This Sprint");
+        Label title = new Label("View Assigned Task");
         title.setSizeUndefined();
         title.addStyleName(ValoTheme.LABEL_H1);
         title.addStyleName(ValoTheme.LABEL_NO_MARGIN);
@@ -72,11 +74,16 @@ public class ViewAllAssignedTask {
 
         myTaskTable.addContainerProperty("Index", Integer.class, null);
         myTaskTable.addContainerProperty("Task Name",  String.class, null);
-        myTaskTable.addContainerProperty("Discription", String.class, null);
+        myTaskTable.addContainerProperty("Description", String.class, null);
+        myTaskTable.addContainerProperty("Project", String.class, null);
+        myTaskTable.addContainerProperty("Date", String.class, null);
+        myTaskTable.addContainerProperty("Technical Skill", String.class, null);
+        myTaskTable.addContainerProperty("Domain Skill", String.class, null);
         myTaskTable.addContainerProperty("Assigned To", String.class, null);
         myTaskTable.setSizeFull();
 
         TaskDAO taskDAO = (TaskDAO) DashboardUI.context.getBean("Task");
+        final ProjectDAO projectDAO = (ProjectDAO) DashboardUI.context.getBean("Project");
         List<Task> taskList = new ArrayList();
         taskList = taskDAO.getAllAssignedTasks();
 
@@ -86,7 +93,10 @@ public class ViewAllAssignedTask {
             Button completeTaskButton=new Button("Complete");
             completeTaskButton.setData(taskList.get(x));
 
-            myTaskTable.addItem(new Object[] {index,taskList.get(x).getName(),taskList.get(x).getDescription(),taskList.get(x).getAssignedTo()},index);
+            UserStory us = taskList.get(x).getUserStory();
+            String pro = projectDAO.getProjectIdFromUserStoryName(us.getName());
+
+            myTaskTable.addItem(new Object[] {index,taskList.get(x).getName(),taskList.get(x).getDescription(),pro,taskList.get(x).getDate(),taskList.get(x).getTechnicalSkill(),taskList.get(x).getDomainSkill(),taskList.get(x).getAssignedTo()},index);
 
             completeTaskButton.addClickListener(new Button.ClickListener() {
                 public void buttonClick(Button.ClickEvent event) {

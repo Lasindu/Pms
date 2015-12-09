@@ -71,8 +71,9 @@ public class TaskDAO {
     }
     public List<Task> getAllTasks()
     {
+        String st = "done";
         Session session = getSessionFactory().openSession();
-        String HQL_QUERY = "from Task";
+        String HQL_QUERY = "from Task as task where task.state != '"+st+"' order by task.id desc";
         Query query = session.createQuery(HQL_QUERY);
         List<Task> list = ((org.hibernate.Query) query).list();
         session.close();
@@ -89,17 +90,18 @@ public class TaskDAO {
     }
     public List<Task> getAllAssignedTasks()
     {
+        String st="done";
         Session session = getSessionFactory().openSession();
-        String HQL_QUERY = "from Task where isAssigned ='1'";
+        String HQL_QUERY = "from Task where state = '"+st+"'";
         Query query = session.createQuery(HQL_QUERY);
         List<Task> list = ((org.hibernate.Query) query).list();
         session.close();
         return list;
     }
     public boolean getAvailableUser(String userName){
-
+        String st = "done";
         Session session = getSessionFactory().openSession();
-        String HQL_QUERY = "from Task as task  where task.assignedTo='"+userName+"'";
+        String HQL_QUERY = "from Task as task  where task.assignedTo='"+userName+"' and task.state != '"+st+"'";
         Query query = session.createQuery(HQL_QUERY);
         List<Task> list = ((org.hibernate.Query) query).list();
         session.close();
@@ -118,14 +120,19 @@ public class TaskDAO {
         Query query = session.createQuery(HQL_QUERY);
         List<Task> list = ((org.hibernate.Query) query).list();
         session.close();
-
+        int starTime = 0;
         if(list.size()>0)
         {
             for(int j=0;j<list.size();j++)
             {
                 TaskTime tt = new TaskTime();
                 int estiTime = Integer.parseInt(list.get(j).getEstimateTime());
-                int starTime = Integer.parseInt(list.get(j).getStartTime());
+                try{
+                    starTime = Integer.parseInt(list.get(j).getStartTime());
+                }catch (Exception e){
+
+                }
+
                 tt.setEndTime(starTime+estiTime);
                 tt.setStartTime(starTime);
                 tTList.add(tt);

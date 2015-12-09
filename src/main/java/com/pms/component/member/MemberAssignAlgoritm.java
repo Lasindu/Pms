@@ -27,13 +27,13 @@ public class MemberAssignAlgoritm {
 
     public List<User> getAvailableAndRelatedMember(Task task,String proName, UserDAO uDao, TaskDAO taskDAO) {
         int estimateTime,startTime = 0;
-        List<User> userRes = uDao.loadSelectedMembers(task.getTechnicalSkill(),proName);
+        List<User> userRes = uDao.loadSelectedMembers(task.getTechnicalSkill(),proName,task.getDomainSkill());
 
         List<User> filteredRes = new ArrayList<User>();
         User user = new User();
         boolean isFree=false, isAssign = false ;
         int startTm, endTm;
-        List<TaskTime> tList= new ArrayList<TaskTime>();
+        List<TaskTime> tList = new ArrayList<TaskTime>();
 
         if(task.getStartTime() != null){
             startTime = Integer.parseInt(task.getStartTime());
@@ -41,7 +41,7 @@ public class MemberAssignAlgoritm {
 
         estimateTime = Integer.parseInt(task.getEstimateTime());
 
-        //Implementing...
+
         for(int i=0;i<userRes.size();i++){
             user = userRes.get(i);
             isAssign = taskDAO.getAvailableUser(user.getUserName());

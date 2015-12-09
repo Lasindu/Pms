@@ -228,7 +228,7 @@ public class TaskGanttChart  {
                     step1.setBackgroundColor("#FF00FF");
                 }
 
-                if(task1.isCr()) step1.setBackgroundColor("FF3300");
+                if(task1.isCr()) step1.setBackgroundColor("#F5073B");
 
                 if(previosStep==null)
                 {
